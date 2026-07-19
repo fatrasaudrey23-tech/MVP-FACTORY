@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thérapelio — Santé mentale au travail</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;600;700&family=Rethink+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        thera: {
+                            energie: '#d2702e', 
+                            stabilite: '#283252', 
+                            confiance: '#F8F4E6', 
+                            optimisme: '#f5d410', 
+                            technologie: '#F23457', 
+                            reflexion: '#323d8b', 
+                            chaleur: '#e4a740'
+                        }
+                    },
+                    fontFamily: { 
+                        sans: ['"Rethink Sans"', 'sans-serif'], 
+                        serif: ['"Fraunces"', 'serif'] 
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<script>
+    async function sendMessageToTherapelio(userMessage) {
+        // 1. Appel vers ton API locale (port 8001)
+        const response = await fetch('http://127.0.0.1:8001/v1/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userMessage })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            console.log("Réponse de Thérapelio :", data.reply);
+            // Ici, tu pourras injecter data.reply dans ta div de chat
+            alert(data.reply); 
+        } else {
+            console.error("Erreur :", data.reply);
+        }
+    }
+</script>
+<body class="bg-thera-confiance text-thera-stabilite font-sans h-screen flex overflow-hidden">
+    
+    <!-- MENU LATÉRAL -->
+    <aside class="w-72 bg-white border-r border-thera-stabilite/5 shadow-sm flex flex-col z-10 justify-between shrink-0">
+        <div class="p-8 pb-4">
+            <!-- Logo -->
+            <img src="logo-principal_web.png" alt="Logo Thérapelio" class="w-56 mb-4 object-contain">
+            
+            <nav class="mt-6 space-y-2">
+                <button id="nav-conversations" onclick="loadView('conversations')" class="w-full text-left px-4 py-3 rounded-xl bg-thera-confiance text-thera-energie font-semibold shadow-sm transition-all flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    Mon IA Assistant
+                </button>
+                <button id="nav-praticiens" onclick="loadView('praticiens')" class="w-full text-left px-4 py-3 rounded-xl text-thera-stabilite/70 hover:bg-thera-confiance font-medium transition-all flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    Prendre RDV
+                </button>
+                <button id="nav-ressources" onclick="loadView('ressources')" class="w-full text-left px-4 py-3 rounded-xl text-thera-stabilite/70 hover:bg-thera-confiance font-medium transition-all flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    Boîte à outils
+                </button>
+                <button id="nav-bilans" onclick="loadView('bilans')" class="w-full text-left px-4 py-3 rounded-xl text-thera-stabilite/70 hover:bg-thera-confiance font-medium transition-all flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    Mes Bilans
+                </button>
+            </nav>
+        </div>
+        
+        <div class="p-4 mb-4">
+            <button onclick="loadView('urgence')" class="w-full bg-thera-technologie/10 hover:bg-thera-technologie text-thera-technologie hover:text-white border border-thera-technologie/20 px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                Appel d'urgence
+            </button>
+        </div>
+    </aside>
+
+    <!-- ZONE DE CONTENU PRINCIPALE -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+        <!-- Correction : ajout de l'espace entre h-20 et bg-thera-confiance/90 -->
+        <header class="h-20 bg-thera-confiance/90 backdrop-blur-md flex items-center justify-between px-10 border-b border-thera-stabilite/5 z-10 shrink-0">
+            <h2 id="view-title" class="text-2xl font-bold font-serif text-thera-stabilite">Espace d'échange</h2>
+            <span id="view-badge" class="text-xs font-semibold px-3 py-1 bg-white rounded-full border border-thera-stabilite/10 text-thera-stabilite/70">🟢 En ligne • IA QVT</span>
+        </header>
+        
+        <div class="flex-1 p-6 sm:p-10 overflow-y-auto">
+            <div id="content-area" class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-[2rem] shadow-sm border border-thera-stabilite/5 min-h-[550px] flex flex-col"></div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = "https://therapelio-api.onrender.com";
+        window.onload = () => loadView('conversations');
+
+        function loadView(view) {
+            const area = document.getElementById('content-area');
+            const title = document.getElementById('view-title');
+            const badge = document.getElementById('view-badge');
+            const navIds = ['nav-conversations', 'nav-praticiens', 'nav-ressources', 'nav-bilans'];
+            
+            navIds.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.className = "w-full text-left px-4 py-3 rounded-xl text-thera-stabilite/70 hover:bg-thera-confiance font-medium transition-all flex items-center gap-3";
+            });
+
+            if (view !== 'urgence') {
+                const activeBtn = document.getElementById(`nav-${view}`);
+                if (activeBtn) activeBtn.className = "w-full text-left px-4 py-3 rounded-xl bg-thera-confiance text-thera-energie font-semibold shadow-sm transition-all flex items-center gap-3";
+            }
+
+            if (view === 'conversations') {
+                title.innerText = "Mon IA Assistant";
+                if(badge) badge.style.display = "inline-block";
+                area.innerHTML = `
+                    <div class="flex flex-col h-[calc(100vh-220px)] min-h-[450px]">
+                        <div id="chat-history" class="flex-1 overflow-y-auto px-2 py-4 space-y-6 scroll-smooth">
+                            <div class="flex justify-start items-start gap-3">
+                                <div class="w-9 h-9 rounded-full bg-thera-stabilite text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>
+                                <div class="bg-thera-confiance text-thera-stabilite p-4 rounded-2xl rounded-tl-none shadow-sm text-sm border border-thera-stabilite/5 leading-relaxed">
+                                    <p class="font-bold mb-1">Bonjour 👋</p>
+                                    <p>Je suis l'assistant Thérapelio. En quoi puis-je vous accompagner aujourd'hui ?</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Correction : items-center pour un alignement vertical parfait -->
+                        <div class="mt-4 pt-4 border-t border-thera-stabilite/10 px-2 flex gap-3 items-center">
+                            <textarea id="chat-input" rows="1" class="flex-1 bg-thera-confiance/40 border border-thera-stabilite/10 p-3.5 rounded-xl focus:outline-none focus:border-thera-energie focus:bg-white transition-all text-sm resize-none" placeholder="Écrivez votre message..." onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); envoyerMessage(); }"></textarea>
+                            <button onclick="envoyerMessage()" class="bg-thera-energie hover:bg-[#c26224] text-white px-6 py-3.5 rounded-xl font-semibold shadow-md hover:-translate-y-0.5 transition-all text-sm shrink-0">Envoyer</button>
+                        </div>
+                    </div>`;
+            } else if (view === 'praticiens') {
+                title.innerText = "Prendre rendez-vous";
+                if(badge) badge.style.display = "none";
+                area.innerHTML = `
+                    <div class="p-2">
+                        <p class="text-thera-stabilite/70 mb-8 font-medium">Sélectionnez un praticien pour planifier une consultation confidentielle.</p>
+                        <div class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm max-w-xl">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-16 h-16 bg-thera-confiance rounded-full flex items-center justify-center text-3xl border border-thera-stabilite/5">👩‍⚕️</div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-thera-stabilite">Dr. Sarah Lemoine</h3>
+                                    <p class="text-thera-energie font-medium text-sm">Psychologue du travail & QVT</p>
+                                </div>
+                            </div>
+                            <button onclick="chargerDispos(6153510, 'dispo-sarah')" class="w-full py-3 bg-thera-stabilite hover:bg-thera-reflexion text-white rounded-xl font-semibold transition-all shadow-sm">Voir les disponibilités (72h)</button>
+                            <div id="dispo-sarah" class="mt-4 text-sm"></div>
+                        </div>
+                    </div>`;
+            } else if (view === 'ressources') {
+                title.innerText = "Boîte à outils bien-être";
+                if(badge) badge.style.display = "none";
+                area.innerHTML = `<div class="p-8 text-center text-thera-stabilite/60"><p class="text-lg font-medium">Exercices de respiration, méditations et outils ACT à venir dans la prochaine version...</p></div>`;
+            } else if (view === 'bilans') {
+                title.innerText = "Mes Bilans";
+                if(badge) badge.style.display = "none";
+                area.innerHTML = `<div class="p-8 text-center text-thera-stabilite/60"><p class="text-lg font-medium">Suivi de votre état de forme et historiques à venir...</p></div>`;
+            } else if (view === 'urgence') {
+                title.innerText = "Urgence & Assistance";
+                if(badge) badge.style.display = "none";
+                area.innerHTML = `
+                    <div class="p-8 text-center max-w-lg mx-auto my-auto">
+                        <div class="w-16 h-16 bg-thera-technologie/10 text-thera-technologie rounded-full flex items-center justify-center text-3xl mx-auto mb-4 font-bold">!</div>
+                        <h3 class="text-2xl font-bold text-thera-technologie mb-3 font-serif">Vous traversez une crise ?</h3>
+                        <p class="text-thera-stabilite/80 mb-6 leading-relaxed">Si vous ressentez une détresse profonde ou des idées noires, vous n'êtes pas seul. Des professionnels sont disponibles 24h/24 pour vous écouter gratuitement et sans jugement.</p>
+                        <a href="tel:3114" class="inline-block w-full py-4 bg-thera-technologie text-white font-bold text-lg rounded-xl shadow-lg hover:bg-red-600 transition-all">Appeler le 31 14 (Gratuit & Confidentiel)</a>
+                    </div>`;
+            }
+        }
+
+        async function chargerDispos(eventTypeId, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div class="text-thera-energie animate-pulse text-center py-4 font-medium">Recherche des créneaux en cours...</div>`;
+            try {
+                const response = await fetch(`${API_BASE}/v1/therapists/slots/${eventTypeId}`);
+                const result = await response.json();
+                if (response.ok && result.data && result.data.slots) {
+                    const slotsData = result.data.slots;
+                    const dates = Object.keys(slotsData);
+                    if (dates.length === 0) return container.innerHTML = `<div class="text-center py-4 text-thera-stabilite/70">Aucune disponibilité sur les prochains jours.</div>`;
+                    
+                    let slotsHtml = '<div class="grid grid-cols-2 gap-2 mt-3 max-h-60 overflow-y-auto p-1">';
+                    for (const date of dates) {
+                        for (const slot of slotsData[date]) {
+                            const time = new Date(slot.time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                            const day = new Date(slot.time).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
+                            slotsHtml += `<button onclick="reserver('${slot.time}', ${eventTypeId})" class="py-2.5 px-3 bg-thera-confiance border border-thera-stabilite/10 rounded-xl hover:border-thera-energie hover:bg-white transition text-xs font-bold text-thera-stabilite flex items-center justify-between"><span>${day}</span> <span class="text-thera-energie font-extrabold">${time}</span></button>`;
+                        }
+                    }
+                    container.innerHTML = slotsHtml + '</div>';
+                } else { container.innerHTML = `<div class="text-red-500 text-xs text-center mt-2 font-medium">Erreur lors de la lecture des créneaux.</div>`; }
+            } catch (err) { container.innerHTML = `<div class="text-red-500 text-xs text-center mt-2 font-medium">Erreur de connexion au serveur de réservation.</div>`; }
+        }
+
+        async function reserver(time, eventTypeId) {
+            const name = prompt("Pour confirmer ce créneau, quel est votre prénom ?");
+            if (!name) return;
+            const email = prompt("Et votre email (pour recevoir le lien de visio) ?");
+            if (!email) return;
+            
+            try {
+                const r = await fetch(`${API_BASE}/v1/bookings/create`, {
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eventTypeId, start: time, name, email })
+                });
+                
+                const result = await r.json();
+                
+                if (r.ok) {
+                    const cancelLink = result.data?.cancelUrl || result.booking?.cancelUrl || "Inconnu (vérifiez vos e-mails)";
+                    alert(`✅ Rendez-vous confirmé pour ${name} !\n\nUn e-mail de confirmation contenant votre lien de visioconférence a été envoyé à ${email}.\n\nLien direct de gestion (annuler/modifier) :\n${cancelLink}`);
+                } else { 
+                    alert("❌ Le créneau n'est plus disponible ou une erreur est survenue.");
+                }
+            } catch(e) { 
+                alert("Erreur réseau lors de la réservation."); 
+            }
+        }
+
+        async function envoyerMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            const history = document.getElementById('chat-history');
+            
+            // Bulle utilisateur (à droite)
+            history.innerHTML += `
+                <div class="flex justify-end items-end gap-2">
+                    <div class="bg-thera-stabilite text-white p-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm text-sm leading-relaxed">${message.replace(/\n/g, '<br>')}</div>
+                </div>`;
+            input.value = '';
+            history.scrollTop = history.scrollHeight;
+            
+            try {
+                const response = await fetch(`${API_BASE}/v1/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: message }) });
+                const result = await response.json();
+                const isError = result.status === "error";
+                
+                // Bulle IA (à gauche)
+                history.innerHTML += `
+                    <div class="flex justify-start items-start gap-3">
+                        <div class="w-9 h-9 rounded-full ${isError ? 'bg-thera-technologie' : 'bg-thera-stabilite'} text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>
+                        <div class="${isError ? 'bg-red-50 text-thera-technologie border border-thera-technologie/20' : 'bg-thera-confiance text-thera-stabilite border border-thera-stabilite/5'} p-4 rounded-2xl rounded-tl-none max-w-[80%] shadow-sm text-sm leading-relaxed">${result.reply.replace(/\n/g, '<br>')}</div>
+                    </div>`;
+            } catch (err) {
+                history.innerHTML += `<div class="text-red-500 text-xs text-center py-2 bg-red-50 rounded-xl border border-red-100">Impossible de joindre l'assistant (Erreur réseau).</div>`;
+            }
+            history.scrollTop = history.scrollHeight;
+        }
+    </script>
+</body>
+</html>

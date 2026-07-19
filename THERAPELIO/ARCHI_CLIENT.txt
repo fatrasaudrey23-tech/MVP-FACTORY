@@ -1,0 +1,5 @@
+API pour prise de rdv. https://cal.com/docs/api-reference/v2/bookings/create-a-booking
+hebergement Mistral
+IA action
+GDPR europeen 
+conversations anonymisées

@@ -1,0 +1,13 @@
+{
+    "routes": [
+        "/v1/auth/register",
+        "/v1/auth/verify-token", 
+        "/verify-company",
+        "/v1/settings/hotline",
+        "/v1/conversations",
+        "/v1/conversations/{id}", 
+        "/v1/resources",
+        "/v1/therapists",
+        "/v1/me/bookings"
+    ]
+}

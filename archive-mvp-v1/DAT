@@ -1,0 +1,47 @@
+🏗️ Document d'Architecture Technique - MVP Ecomenu
+1. Infrastructure Globale (Stack Technique)
+Actuellement, ton application fonctionne de manière modulaire. Le moteur principal est sur ton Mac, mais il se connecte à des services cloud professionnels pour simuler une application en production.
+
+Frontend (Interface Visuelle) : Propulsé par Streamlit. C'est le visage de ton application, généré dynamiquement à chaque sprint pour afficher tes tableaux de bord et menus interactifs.
+
+Backend (Logique Métier) : Écrit en Python 3.9+. Il contient toute la logique de tes tickets Ecomenu (collecte de données, normalisation, création de menus).
+
+Base de Données (BaaS) : Hébergée sur Supabase (basé sur PostgreSQL). C'est là que sont stockés les profils utilisateurs, les régimes alimentaires et les historiques de menus.
+
+Intelligence Artificielle :
+
+Moteur de l'Usine (Dev/PO/Architecte) : Google Gemini 2.5 Flash (orchestré via LangChain/LangGraph).
+
+Fonctionnalités Ecomenu (Extraction des promos) : OpenAI (intégré par l'Agent Développeur lors du Sprint).
+
+2. Cartographie des URLs et Endpoints
+Voici la liste des "adresses" vers lesquelles ton application pointe pour communiquer avec le monde extérieur.
+
+🏠 Interface Locale Ecomenu :
+
+http://localhost:8501 (C'est l'URL où tourne ton application sur ton navigateur).
+
+🗄️ Base de Données (Supabase) :
+
+https://[TON_ID_PROJET].supabase.co (L'URL racine de ton projet Supabase).
+
+🛒 Source de Données (Circulaires / Promotions) :
+
+Web Scraper (Flipp) : [https://flipp.com/en-ca/montreal-qc/flyers](https://flipp.com/en-ca/montreal-qc/flyers) (L'URL ciblée par ton outil de collecte).
+
+API Standardisée : [https://api.example.com/promotions](https://api.example.com/promotions) (Endpoint fictif (mock) utilisé comme sécurité (fallback) par ton interface).
+
+3. Registre des Clés API & Identifiants (Variables d'Environnement)
+Pour que toutes ces briques communiquent de manière sécurisée, ton application a besoin de plusieurs clés. Dans un vrai projet, ces clés ne sont jamais écrites directement dans le code, mais stockées dans un fichier sécurisé nommé .env.
+
+🏭 Clés de l'Usine (Pour fabriquer le code)
+GEMINI_API_KEY : Permet à tes Agents (PO, Dev, Architecte) de réfléchir et de générer le code source de ton application. (Actuellement active dans ton système).
+
+🍽️ Clés du Produit Ecomenu (Pour faire tourner l'app)
+SUPABASE_URL : L'adresse de connexion à ta base de données.
+
+SUPABASE_KEY (Clé anon/public) : Le mot de passe qui autorise ton interface Streamlit à lire et écrire dans tes tables (ex: sauvegarder un nouveau profil).
+
+OPENAI_API_KEY : La clé qui permet au module de ton application (ECOMENU_31) de lire et structurer le texte des promotions trouvées dans les circulaires.
+
+💡 Conseil de PM : Tu peux copier/coller ce bloc dans un fichier texte (par exemple ARCHITECTURE.md dans ton dossier VS Code) pour garder une trace propre de ton infrastructure. Au fur et à mesure que les prochains Sprints avanceront, nous viendrons simplement ajouter les nouvelles briques à ce document !

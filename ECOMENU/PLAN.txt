@@ -1,0 +1,46 @@
+📑 RAPPORT DE CLÔTURE TECHNIQUE : SOCLE BACKEND & PIPELINE D'INGESTION
+🏗️ 1. L'Architecture Globale de la Factory
+Nous avons conçu un écosystème modulaire piloté par les données (Data-Driven). Le code n'est plus écrit de manière rigide, il est généré dynamiquement à partir d'un plan unique : DAS_architecture.json.
+
+                  [ DAS_architecture.json ] (Le Plan)
+                             |
+         +-------------------+-------------------+
+         |                                       |
+         v                                       v
+[ factory_backend.py ]                 [ factory_worker.py ]
+(L'Agent Développeur)                   (L'Agent Scraper)
+         |                                       |
+         v (Génère)                              v (Propulse les données)
+   [ main.py ]  ============================> [ API REST (FastAPI) ]
+(Serveur Forteresse)                             |
+                                                 v (Canal Privé : service_role)
+                                           [ Cloud Supabase ] (Base de données)
+🛠️ 2. Les Composants Alignés
+🛡️ Le Fichier d'Environnement Secoué (.env)
+Nous avons mis en place une étanchéité stricte des privilèges d'accès en scindant les responsabilités :
+
+SUPABASE_URL : Point d'ancrage de ton infrastructure Cloud.
+
+SUPABASE_KEY : Clé publique (anon), destinée au futur Frontend pour la lecture seule (soumise au RLS).
+
+SUPABASE_SERVICE_ROLE_KEY : Clé d'administration secrète (Master), réservée exclusivement au Backend pour permettre l'ingestion automatique de données par les Workers en contournant le RLS sans le désactiver.
+
+🤖 L'Agent Développeur Backend (factory_backend.py)
+Il lit le schéma de l'architecte et génère automatiquement le serveur main.py :
+
+Schémas Pydantic dynamiques : Ils traduisent les types SQL (VARCHAR, INTEGER, FLOAT) en types Python pour valider les données à l'entrée.
+
+Routes CRUD automatiques : Il génère pour chaque table une route de lecture (GET /api/v1/nom_table) et une route d'écriture (POST /api/v1/nom_table).
+
+🏰 Le Serveur Généré Complet (main.py)
+Le serveur FastAPI embarque désormais une logique de "Nettoyage Chirurgical" au démarrage. Il nettoie automatiquement les clés de configuration des espaces invisibles, des guillemets ou des retours à la ligne parasites (\n, \r) souvent introduits lors des copier-coller.
+
+⚡ L'Agent Worker d'Ingestion (factory_worker.py)
+Ce composant simule l'arrivée de flux de données (Scraping/Données terrain). Il inspecte le plan d'architecture, génère des données de test cohérentes et réalistes pour le projet actuel, puis bombarde les routes POST du serveur.
+
+🏁 3. Alignement des Données (Projet EcoMenu)
+Nous avons résolu les écarts structurels entre ton plan théorique et la réalité physique de ton Cloud Supabase :
+
+Désalignements corrigés : Les colonnes critiques profil_boite_lunch et type_boite_lunch ont été injectées manuellement via l'éditeur SQL de Supabase dans la table users.
+
+État final : 100 % des flux d'ingestion sont au vert. Toutes les tables (users, enseigne_selection, promotions, produit_tags, menus) reçoivent, valident et stockent désormais leurs données de test en temps réel.

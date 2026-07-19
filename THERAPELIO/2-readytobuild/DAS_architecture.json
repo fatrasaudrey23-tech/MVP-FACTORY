@@ -1,0 +1,193 @@
+{
+  "project_analysis": {
+    "core_entities": [
+      {
+        "name": "Company",
+        "description": "The B2B client entity that subscribes to the service for its employees."
+      },
+      {
+        "name": "User",
+        "description": "The anonymous end-user (employee) interacting with the application. Linked to a company but without any Personal Identifiable Information (PII)."
+      },
+      {
+        "name": "Conversation",
+        "description": "A complete interaction session between a User and the AI agent, including all messages and the final outcome."
+      },
+      {
+        "name": "Therapist",
+        "description": "A registered mental health professional available for consultations. Their profile and availabilities are managed."
+      },
+      {
+        "name": "Booking",
+        "description": "A record of an appointment made by a User with a Therapist, managed via an external API (cal.com)."
+      },
+      {
+        "name": "Resource",
+        "description": "A self-help tool within the library (e.g., meditation audio, breathing exercise guide, podcast)."
+      },
+      {
+        "name": "CrisisLog",
+        "description": "A specific event log created when a conversation is flagged for acute crisis, for security and audit purposes."
+      }
+    ],
+    "edge_cases": [
+      {
+        "case": "Anonymity vs. Booking PII",
+        "analysis": "A user needs to provide PII (name, email) to book a session with a therapist, which conflicts with the platform's anonymity principle. The architecture must ensure that PII is passed directly to the external booking service (cal.com) and is never stored alongside the user's anonymous conversation history in our database."
+      },
+      {
+        "case": "AI Model Latency or Failure",
+        "analysis": "The external AI model API (Mistral) could be slow or unavailable. The backend must implement timeouts, retries with exponential backoff, and a circuit-breaker pattern. The client application should display a user-friendly message during delays."
+      },
+      {
+        "case": "External API Unavailability (cal.com)",
+        "analysis": "The booking API could be down. The 'Take an appointment' feature must be disabled gracefully, informing the user of the temporary issue and suggesting other resources in the meantime."
+      },
+      {
+        "case": "Data Synchronization Issues",
+        "analysis": "A booking might be cancelled or modified directly in the therapist's calendar (cal.com). A webhook system is necessary to receive real-time updates from cal.com and keep our local `bookings` table synchronized."
+      },
+      {
+        "case": "User Authentication without PII",
+        "analysis": "Users must be associated with their employer without revealing their identity. The proposed solution is a one-time company code for initial registration, which generates a persistent anonymous user UUID and a device-specific JWT for subsequent sessions."
+      },
+      {
+        "case": "High-Risk Data Hosting",
+        "analysis": "The system handles sensitive health data, requiring hosting on HDS (Hébergeur de Données de Santé) certified servers. All data, especially conversation content, must be encrypted both in transit (TLS) and at rest (e.g., using Supabase's pgsodium extension)."
+      },
+      {
+        "case": "Cost Control and Abuse",
+        "analysis": "API calls to the LLM (Mistral) can be expensive. Rate limiting must be implemented on a per-user basis to prevent abuse and manage operational costs."
+      }
+    ]
+  },
+  "database_schema": {
+    "companies": [
+      {"name": "id", "type": "uuid", "constraints": "PRIMARY KEY, default gen_random_uuid()"},
+      {"name": "name", "type": "varchar(255)", "constraints": "NOT NULL"},
+      {"name": "subscription_status", "type": "varchar(50)", "constraints": "NOT NULL DEFAULT 'inactive'"},
+      {"name": "registration_code", "type": "varchar(255)", "constraints": "NOT NULL, UNIQUE"},
+      {"name": "created_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"},
+      {"name": "updated_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"}
+    ],
+    "users": [
+      {"name": "id", "type": "uuid", "constraints": "PRIMARY KEY, default gen_random_uuid()"},
+      {"name": "company_id", "type": "uuid", "constraints": "NOT NULL, REFERENCES companies(id)"},
+      {"name": "status", "type": "varchar(50)", "constraints": "NOT NULL DEFAULT 'active'"},
+      {"name": "created_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"},
+      {"name": "updated_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"}
+    ],
+    "conversations": [
+      {"name": "id", "type": "uuid", "constraints": "PRIMARY KEY, default gen_random_uuid()"},
+      {"name": "user_id", "type": "uuid", "constraints": "NOT NULL, REFERENCES users(id)"},
+      {"name": "status", "type": "varchar(50)", "constraints": "NOT NULL DEFAULT 'in_progress'"},
+      {"name": "summary", "type": "text", "constraints": "NULL"},
+      {"name": "outcome_type", "type": "varchar(100)", "constraints": "NULL"},
+      {"name": "created_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"},
+      {"name": "updated_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"}
+    ],
+    "conversation_messages": [
+      {"name": "id", "type": "uuid", "constraints": "PRIMARY KEY, default gen_random_uuid()"},
+      {"name": "conversation_id", "type": "uuid", "constraints": "NOT NULL, REFERENCES conversations(id) ON DELETE CASCADE"},
+      {"name": "sender_type", "type": "varchar(10)", "constraints": "NOT NULL"},
+      {"name": "content_encrypted", "type": "text", "constraints": "NOT NULL"},
+      {"name": "ai_metadata", "type": "jsonb", "constraints": "NULL"},
+      {"name": "created_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"}
+    ],
+    "therapists": [
+      {"name": "id", "type": "uuid", "constraints": "PRIMARY KEY, default gen_random_uuid()"},
+      {"name": "cal_com_user_id", "type": "varchar(255)", "constraints": "NOT NULL, UNIQUE"},
+      {"name": "display_name", "type": "varchar(255)", "constraints": "NOT NULL"},
+      {"name": "specialties", "type": "jsonb", "constraints": "NULL"},
+      {"name": "status", "type": "varchar(50)", "constraints": "NOT NULL DEFAULT 'active'"},
+      {"name": "created_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"},
+      {"name": "updated_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"}
+    ],
+    "bookings": [
+      {"name": "id", "type": "uuid", "constraints": "PRIMARY KEY, default gen_random_uuid()"},
+      {"name": "user_id", "type": "uuid", "constraints": "NOT NULL, REFERENCES users(id)"},
+      {"name": "therapist_id", "type": "uuid", "constraints": "NOT NULL, REFERENCES therapists(id)"},
+      {"name": "cal_com_booking_id", "type": "bigint", "constraints": "NOT NULL, UNIQUE"},
+      {"name": "status", "type": "varchar(50)", "constraints": "NOT NULL DEFAULT 'confirmed'"},
+      {"name": "start_time", "type": "timestamptz", "constraints": "NOT NULL"},
+      {"name": "end_time", "type": "timestamptz", "constraints": "NOT NULL"},
+      {"name": "created_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"},
+      {"name": "updated_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"}
+    ],
+    "resources": [
+      {"name": "id", "type": "uuid", "constraints": "PRIMARY KEY, default gen_random_uuid()"},
+      {"name": "type", "type": "varchar(50)", "constraints": "NOT NULL"},
+      {"name": "title", "type": "varchar(255)", "constraints": "NOT NULL"},
+      {"name": "description", "type": "text", "constraints": "NULL"},
+      {"name": "content_url", "type": "varchar(512)", "constraints": "NOT NULL"},
+      {"name": "duration_seconds", "type": "integer", "constraints": "NULL"},
+      {"name": "tags", "type": "jsonb", "constraints": "NULL"},
+      {"name": "created_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"},
+      {"name": "updated_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"}
+    ],
+    "crisis_logs": [
+      {"name": "id", "type": "uuid", "constraints": "PRIMARY KEY, default gen_random_uuid()"},
+      {"name": "conversation_id", "type": "uuid", "constraints": "NOT NULL, REFERENCES conversations(id)"},
+      {"name": "triggering_message_id", "type": "uuid", "constraints": "NULL, REFERENCES conversation_messages(id)"},
+      {"name": "action_taken", "type": "varchar(255)", "constraints": "NOT NULL"},
+      {"name": "created_at", "type": "timestamptz", "constraints": "NOT NULL, default now()"}
+    ]
+  },
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/register",
+      "purpose": "Register a new anonymous user using a company-provided code. Returns a JWT."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/conversations",
+      "purpose": "Starts a new conversation session for the authenticated user."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/conversations/{conversationId}",
+      "purpose": "Retrieves the message history for a specific conversation."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/conversations/{conversationId}/messages",
+      "purpose": "Sends a user message to the AI. The server processes it with the Mistral API and returns the AI's response."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/resources",
+      "purpose": "Lists all available self-help resources (meditations, exercises, podcasts), with filtering options."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/therapists",
+      "purpose": "Lists available therapists and their profiles."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/therapists/{therapistId}/availability",
+      "purpose": "Fetches available booking slots for a specific therapist by proxying a request to the cal.com API."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/bookings",
+      "purpose": "Creates a new appointment. This endpoint receives user PII and forwards it to the cal.com API to create the booking, then saves a non-PII reference in the local DB."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/bookings",
+      "purpose": "Retrieves the list of upcoming and past bookings for the authenticated user."
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/hotline",
+      "purpose": "Retrieves the information for the direct human support hotline."
+    },
+    {
+      "method": "POST",
+      "path": "/v1/webhooks/caldotcom",
+      "purpose": "Webhook endpoint to receive booking status updates from cal.com (e.g., confirmed, cancelled)."
+    }
+  ]
+}

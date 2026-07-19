@@ -1,0 +1,137 @@
+# 1. VISION ET CONTEXTE
+
+**Problème :** La santé mentale en entreprise est un enjeu de performance et de bien-être majeur. Les employés confrontés à une détresse psychologique (stress, anxiété, burnout) font face à trois barrières principales : la **stigmatisation** (peur d'en parler), l'**inertie** (ne pas savoir vers qui se tourner) et les **délais d'attente** pour un soutien qualifié.
+
+**Solution :** Therapelio est une plateforme B2B2C qui offre un point d'entrée unique, confidentiel et immédiat pour la santé mentale des collaborateurs. Elle agit comme un service de **triage intelligent et de premier soutien psychologique**. En combinant une IA conversationnelle empathique, un accès à des outils de self-care et une mise en relation rapide avec des thérapeutes qualifiés, Therapelio déstigmatise le recours à l'aide psychologique et fournit une réponse adaptée et proportionnée à chaque situation, 24/7.
+
+**Positionnement Stratégique :** Therapelio n'est pas un outil de diagnostic médical, mais un **facilitateur de soins** (Care Enabler). Sa valeur réside dans sa capacité à offrir une écoute active immédiate et à orienter l'utilisateur vers la ressource la plus pertinente, réduisant ainsi la charge mentale liée à la recherche d'aide et prévenant l'aggravation des troubles.
+
+---
+
+# 2. PERSONAS ET PARCOURS UTILISATEURS
+
+### Persona Principal : "Alex, 32 ans, Chef de Projet"
+
+*   **Contexte :** Alex travaille dans un environnement à haute pression, avec des deadlines serrées et une charge de travail croissante. Il/Elle ressent un épuisement professionnel, de l'anxiété avant les réunions importantes et des difficultés à "déconnecter" le soir.
+*   **Frustrations :**
+    *   **Peur du jugement :** Ne veut pas que son manager ou les RH perçoivent sa situation comme une faiblesse ou une incapacité à gérer son poste.
+    *   **Manque de temps :** N'a pas le temps en journée de chercher un psychologue, de passer des appels et de gérer la logistique des rendez-vous.
+    *   **Incertitude :** Ne sait pas si son problème est "assez grave" pour justifier une thérapie. Il/Elle a besoin d'un premier avis confidentiel.
+    *   **Besoin d'immédiateté :** Les moments de crise surviennent souvent le soir ou le week-end, lorsque les services traditionnels sont fermés.
+
+### Parcours Utilisateur Cible (Golden Path) :
+
+1.  **Prise de Conscience :** Après une semaine particulièrement difficile, Alex se sent dépassé(e). Il/Elle se souvient d'une communication interne de son entreprise concernant l'application Therapelio.
+2.  **Onboarding Discret :** Alex télécharge l'application et crée un compte en utilisant un identifiant anonyme. L'application garantit une confidentialité totale vis-à-vis de l'employeur.
+3.  **Interaction avec l'IA :** Alex initie une conversation. Il/Elle exprime son sentiment d'être "submergé(e)" et "au bout du rouleau". L'IA, avec un ton empathique, pose des questions ouvertes pour mieux cerner la situation, sans jamais être intrusive.
+4.  **Triage et Orientation :** Après une dizaine d'échanges, l'IA synthétise la situation (sans poser de diagnostic) et propose trois options :
+    a. Un exercice de respiration guidée pour apaiser l'anxiété immédiate.
+    b. La planification d'une séance avec un thérapeute dans les 72h pour discuter de la charge de travail et du stress.
+    c. L'écoute d'un podcast sur la gestion du stress.
+5.  **Action :** Alex effectue l'exercice de respiration, se sent immédiatement un peu plus calme, et décide de réserver une session vidéo avec un thérapeute pour le lendemain soir.
+6.  **Résolution :** Alex a eu son premier entretien et se sent soutenu(e). Le premier pas a été franchi de manière simple, rapide et confidentielle.
+
+---
+
+# 3. CONTRAINTES LÉGALES ET TECHNIQUES (EDGE CASES)
+
+*   **Conformité AI Act & Santé :** Le système est classifié comme "système d'IA à haut risque" car il intervient dans le domaine de la santé mentale.
+    *   **Transparence :** L'utilisateur doit être informé dès le départ qu'il interagit avec une IA.
+    *   **Absence de Diagnostic :** L'IA ne doit JAMAIS poser de diagnostic médical, ni utiliser un vocabulaire qui pourrait être interprété comme tel. Sa mission est d'écouter, de reformuler, et d'orienter. Toute la modélisation doit intégrer cette "firewall" éthique.
+    *   **Supervision Humaine :** Un processus doit être en place pour que des psychologues qualifiés puissent auditer (sur des données anonymisées) les conversations et les orientations de l'IA pour garantir sa pertinence et sa sécurité.
+*   **Utilisation du DSM-5 :** Le DSM-5 n'est pas utilisé comme un outil de diagnostic, mais comme un **cadre de référence sémantique** pour l'IA. Il aide le modèle à reconnaître des patterns de détresse (ex: anxiété, dépression, etc.) afin d'adapter son ton, ses questions et la pertinence de ses propositions d'orientation.
+*   **Gestion des Urgences (Cas Critique) :**
+    *   **Détection :** L'IA doit être entraînée à détecter avec une très haute sensibilité les mots-clés, intentions et schémas sémantiques liés à une détresse aiguë, au risque suicidaire ou à un danger imminent.
+    *   **Protocole d'urgence :** En cas de détection, le script conversationnel standard est immédiatement interrompu. Un message clair, direct et non-alarmiste s'affiche, fournissant le numéro d'urgence psychologique national et incitant fermement l'utilisateur à appeler. L'application doit rendre ce numéro cliquable (`tel:`). Aucune autre option n'est proposée à ce stade pour éviter la paralysie décisionnelle.
+*   **Confidentialité et Anonymat (RGPD/HDS) :**
+    *   Les conversations sont chiffrées de bout en bout.
+    *   L'authentification utilisateur doit être conçue pour ne requérir aucune information personnelle identifiable (PII). L'anonymat vis-à-vis de l'employeur est une garantie absolue.
+    *   Les données traitées doivent être hébergées sur des serveurs certifiés pour les données de santé (HDS si applicable en France).
+*   **Fiabilité des API Tiers :** L'API de gestion des agendas des thérapeutes doit être robuste et garantir la synchronisation en temps réel des disponibilités pour éviter les frustrations liées à la prise de rendez-vous.
+
+---
+
+# 4. EPIC BACKLOG & USER STORIES (Format BDD)
+
+---
+### **EPIC 1 : Conversation IA de Premier Soutien**
+*Permettre à l'utilisateur d'engager une conversation sécurisée et empathique avec une IA pour exprimer sa détresse et obtenir un premier niveau de soutien.*
+
+**User Story 1.1 : Adaptation du ton de l'IA**
+- **En tant que** utilisateur en détresse, **Je veux** que l'agent IA comprenne mon état émotionnel (stress, tristesse, colère) et adapte son ton et ses réponses, **Afin de** me sentir réellement écouté et en confiance.
+- **Critères d'acceptation :**
+    - **Étant donné que** je commence une conversation en utilisant des termes comme "je suis dépassé", "je n'en peux plus", "tout est noir".
+    - **Quand** l'IA analyse mon premier message.
+    - **Alors** sa première réponse utilise un langage validant et apaisant (ex: "Je comprends que cela doit être très difficile à vivre. Je suis là pour vous écouter.").
+    - **Et** les questions suivantes sont ouvertes et douces (ex: "Voulez-vous m'en dire un peu plus sur ce qui vous pèse en ce moment ?").
+
+**User Story 1.2 : Cadrage de la conversation**
+- **En tant que** développeur, **Je veux** que la conversation IA soit limitée à environ 10 échanges, **Afin de** garantir que l'utilisateur soit orienté vers une action concrète sans s'enfermer dans une boucle conversationnelle.
+- **Critères d'acceptation :**
+    - **Étant donné que** l'utilisateur a échangé 8 messages avec l'IA.
+    - **Quand** l'utilisateur envoie son prochain message.
+    - **Alors** l'IA prépare une transition pour synthétiser la conversation et proposer une orientation (ex: "Merci d'avoir partagé cela avec moi. D'après nos échanges, il semble que... Je peux vous proposer quelques pistes si vous le souhaitez.").
+
+---
+### **EPIC 2 : Orientation Intelligente et Gestion des Ressources**
+*Fournir à l'utilisateur des options claires et pertinentes (thérapeutes, outils, urgences) basées sur l'analyse de la conversation par l'IA.*
+
+**User Story 2.1 : Détection et Redirection d'Urgence**
+- **En tant que** utilisateur en situation de crise aiguë, **Je veux** que l'application reconnaisse la gravité de ma situation et me dirige immédiatement vers une aide d'urgence, **Afin de** garantir ma sécurité.
+- **Critères d'acceptation :**
+    - **Étant donné que** je suis en conversation avec l'IA.
+    - **Quand** j'écris un message contenant des indicateurs de risque suicidaire ou de danger imminent (ex: "je veux en finir", "je vais me faire du mal").
+    - **Alors** la conversation est immédiatement interrompue.
+    - **Et** un message d'alerte s'affiche, contenant le numéro national d'urgence psy, rendu cliquable.
+    - **Et** le message est dénué de toute ambiguïté, du type : "Votre sécurité est la priorité absolue. Veuillez contacter immédiatement ce numéro d'urgence : [Numéro]".
+
+**User Story 2.2 : Proposition de RDV avec un Thérapeute**
+- **En tant que** utilisateur ayant besoin d'un soutien professionnel, **Je veux** que l'IA me propose de prendre rendez-vous avec un thérapeute disponible rapidement, **Afin de** passer à l'action sans délai.
+- **Critères d'acceptation :**
+    - **Étant donné que** l'analyse de ma conversation par l'IA indique un besoin de suivi psychologique.
+    - **Quand** la phase de conversation se termine.
+    - **Alors** l'IA me propose une option "Parler à un thérapeute".
+    - **Et** si je clique, je suis redirigé vers une interface affichant les disponibilités des praticiens dans les prochaines 72 heures.
+
+**User Story 2.3 : Proposition d'Outils de Self-Care (Méditation, Respiration, Podcasts)**
+- **En tant que** utilisateur souhaitant une aide immédiate et autonome, **Je veux** pouvoir accéder à des outils comme des exercices de respiration, de méditation ou des podcasts thématiques, **Afin de** gérer mon état émotionnel sur le moment.
+- **Critères d'acceptation :**
+    - **Étant donné que** ma conversation avec l'IA a mis en évidence un état d'anxiété ou de stress.
+    - **Quand** l'IA propose des orientations.
+    - **Alors** l'une des options proposées est "Essayer un exercice de relaxation".
+    - **Et** si je la sélectionne, je peux lancer directement un module de respiration guidée, un module de méditation ou une liste de podcasts pertinents depuis l'application.
+
+---
+### **EPIC 3 : Accès Direct aux Soins et Onboarding**
+*Garantir que l'utilisateur puisse créer un compte en toute confiance et accéder à une aide humaine directement s'il le souhaite.*
+
+**User Story 3.1 : Accès direct à la Hotline Thérapeute**
+- **En tant que** utilisateur, **Je veux** pouvoir contacter directement une hotline d'écoute avec un thérapeute, sans devoir passer par l'agent IA, **Afin de** parler à un humain immédiatement si j'en ressens le besoin.
+- **Critères d'acceptation :**
+    - **Étant donné que** je suis sur l'écran d'accueil de l'application.
+    - **Quand** je clique sur le bouton visible "Parler à un thérapeute maintenant".
+    - **Alors** l'application m'informe du temps d'attente estimé et me met en relation (via appel ou chat) avec le prochain thérapeute disponible.
+
+**User Story 3.2 : Onboarding Anonyme et Sécurisé**
+- **En tant que** nouvel utilisateur, **Je veux** créer un compte de manière simple et anonyme, **Afin de** me sentir en totale sécurité pour utiliser le service.
+- **Critères d'acceptation :**
+    - **Étant donné que** je lance l'application pour la première fois.
+    - **Quand** j'arrive sur l'écran de création de compte.
+    - **Alors** les seuls champs requis sont un pseudonyme et un mot de passe (ou une authentification biométrique).
+    - **Et** un message clair m'informe de la politique de confidentialité et de l'anonymat total vis-à-vis de mon employeur.
+
+---
+### **EPIC 4 : Identité Visuelle et Expérience Utilisateur**
+*Implémenter une interface utilisateur qui reflète les valeurs de la marque : bienveillance, technologie et confiance, pour créer un environnement apaisant.*
+
+**User Story 4.1 : Application de la Charte Graphique**
+- **En tant que** utilisateur, **Je veux** une interface visuellement cohérente et apaisante, **Afin que** l'expérience d'utilisation de l'application soit rassurante et professionnelle.
+- **Critères d'acceptation :**
+    - **Étant donné que** j'ouvre n'importe quel écran de l'application.
+    - **Quand** j'observe les éléments graphiques (fonds, boutons, textes, icônes).
+    - **Alors** la palette de couleurs respecte la charte définie :
+        - `#F8F4E6` (Confiance) pour les fonds principaux.
+        - `#323d8b` (Réflexion) et `#283252` (Stabilité) pour les textes et éléments de structure.
+        - `#f5d410` (Optimisme) et `#e4a740` (Chaleur) pour les appels à l'action positifs.
+        - `#F23457` (Technologie) et `#d2702e` (Énergie) pour les notifications ou éléments nécessitant une attention particulière, à utiliser avec parcimonie.
+    - **Et** la typographie est lisible et douce, en accord avec l'identité de la marque.

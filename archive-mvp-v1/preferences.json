@@ -1,0 +1,15 @@
+{
+    "num_days": 5,
+    "meals_per_day": [
+        "lunch",
+        "dinner"
+    ],
+    "allergies": [],
+    "dietary_restrictions": [],
+    "max_budget": 140.0,
+    "optimization_goal": "minimize_cost",
+    "min_calories_per_day": 800,
+    "max_calories_per_day": 2500,
+    "min_protein_per_day": 20,
+    "max_same_recipe_freq_days": 1
+}

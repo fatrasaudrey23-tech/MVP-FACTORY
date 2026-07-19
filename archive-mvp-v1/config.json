@@ -1,0 +1,47 @@
+{
+    "recipes": [
+        {
+            "id": "rec1",
+            "name": "Chicken Salad",
+            "ingredients": [
+                {
+                    "name": "chicken breast",
+                    "quantity": 150,
+                    "unit": "g"
+                }
+            ],
+            "nutritional_info": {
+                "calories": 350,
+                "protein": 35
+            },
+            "cost": 4.5,
+            "allergens": [],
+            "dietary_tags": [
+                "omnivore"
+            ]
+        },
+        {
+            "id": "rec3",
+            "name": "Salmon with Rice",
+            "ingredients": [
+                {
+                    "name": "salmon fillet",
+                    "quantity": 180,
+                    "unit": "g"
+                }
+            ],
+            "nutritional_info": {
+                "calories": 500,
+                "protein": 40
+            },
+            "cost": 7.0,
+            "allergens": [
+                "fish"
+            ],
+            "dietary_tags": [
+                "omnivore"
+            ]
+        }
+    ],
+    "ingredients_stock": {}
+}

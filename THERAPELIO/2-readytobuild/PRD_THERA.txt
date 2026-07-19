@@ -1,0 +1,129 @@
+===========================================================================
+ PRODUCT REQUIREMENTS DOCUMENT (PRD)
+===========================================================================
+
+### Nom du projet (Sans espaces, ex: EcoMenu, SmartTags) : (Format : Réponse courte)
+THERAPELIO_TEST
+
+---
+
+### Vision & Pitch : Quel est le problème à résoudre et comment le produit y répond-il en une phrase ?
+La santé mentale au travail. Un employé a besoin d'aide psychologique, l'application therapelio lui permet de converser avec une IA conversationelle qui va l'écouter, lui apporter le premier soutien psychologique adequate, et lui proposer un rdv avec un practicien ou un outil psychologique ( meditation, respiration, podcast) ou le diriger vers un numero d'urgence psy
+
+---
+
+### Cible : Qui est l'utilisateur principal et quelles sont ses frustrations ?
+l'utilisateur principal est un employé qui a besoin d'aide psychologique
+
+---
+
+### Intelligence & Données : D'où proviennent les données brutes et quelles sont les règles métiers / calculs spécifiques ?
+les données proviennent de l'employée qui s'exprime sur ce qu'il vit ressent , grace a des questions qui lui sont posées par l'AI conversationnelle de l'application therapelio. l'IA conversationnelle se base sur le DSM 5, et respecte IA ACT, pour les rdv l'application utilise une API qui la relie a un agenda de disponibilites des therapeuthe, pour l'urgence c 'est le numero d'urgence nationale psy
+
+---
+
+### Périmètre MVP : Quelles sont les 5 fonctionnalités strictement obligatoires pour le lancement ?
+en tant qu'utilisateur : 
+Je veux que l'agent IA comprenne mon état émotionnel du moment et adapte son ton
+Afin de me sentir réellement écouté et non face à un chatbot générique
+
+En tant qu'utilisateur
+je veux pouvoir me connecter à une hotline d'écoute avec un thérapeute en cas de besoin, avec ou sans passage pas l'agent IA
+
+IA apporte une reponse , sous forme de dialogue  ? / reponse étoffée , avec clarifications et autres questions
+10 échanges  cadrage sans diagnostique medicaux , mais en se basant sur le DSM 5 pour savoir comment adapter son ton , ses reponses, ses questions, 
+
+IA fasse une analyse et 1 orientation en proposant  rdv dans les 72 h, mais si urgence detectee renvoie vers la ligne d urgence
+
+---
+
+### UI/UX : Quelle est la direction artistique, la "vibe" et la palette de couleurs souhaitée  pour votre application ?
+gamme chromatique. : 12
+Optimisme
+R 245
+V 212
+B 16
+C 0 %
+M 15 %
+J 100 %
+N 00 %
+HEX
+#f5d410
+Technologie
+R 233
+V 104
+B 098
+C 50 %
+M 10 %
+J 20 %
+N 03 %
+HEX
+#F23457
+Réflexion
+R 50
+V 61
+B 139
+C 98 %
+M 85 %
+J 0 %
+N 1 %
+HEX
+#323d8b
+Chaleur
+R 228
+V 167
+B 64
+C 0 %
+M 40 %
+J 85 %
+N 0 %
+HEX
+#e4a740
+Charte graphique | Les couleurs
+Énergie
+R 233
+V 104
+B 98
+C 0 %
+M 66 %
+J 91 %
+N 0 %
+HEX
+#d2702e
+Stabilité
+R 40
+V 50
+B 82
+C 100 %
+M 86 %
+J 40 %
+N 31 %
+HEX
+#283252
+Confiance
+R 248
+V 244
+B 230
+C 3 %
+M 4 %
+J 12 %
+N 0 %
+HEX
+#F8F4E6
+
+Thérapelio allie intelligence artificielle et bienveillance humaine pour offrir
+aux entreprises des solutions innovantes dédiées à la santé mentale
+au travail. Le symbole illustre ces concepts.
+L’épanouissement
+personnel
+et professionnel
+- T -
+Lettre capitale
+initiale de
+Thérapelio
+Une société
+et des thérapeutes
+centrés sur
+les collaborateurs
+
+---

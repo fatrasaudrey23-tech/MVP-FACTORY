@@ -1,0 +1,94 @@
+# Product Requirements Document (PRD) - EcoMenu
+
+## 1. Vision du Produit
+EcoMenu est une application permettant de générer des menus hebdomadaires économiques pour les foyers, basés exclusivement sur les promotions réelles des circulaires de grandes surfaces, et de preparer la liste des courses pour la semaine.
+
+## 2. Parcours Utilisateur & Spécifications Frontend
+L'interface utilisateur se compose de trois étapes clés :
+
+### Écran 1 : Cadrage et Critères du Foyer
+L'utilisateur configure son profil de consommation via les filtres suivants :
+- **Budget Maximum :** Ajustable via un curseur dynamique.
+- **Taille du Foyer :** Nombre de personnes composant le ménage.
+- **Sélection des Enseignes :** Choix des grandes surfaces cibles (ex: Métro, IGA, Provigo, etc.).
+- **Gestion des Restes / Boîtes à Lunch :** 
+  - Option activable : Oui/Non.
+  - Type de repas pour les boîtes à lunch : Spécifique (sandwichs, repas froids) ou Réutilisation des restes du dîner.
+  - Profil : Adapté pour les enfants ou les adultes.
+
+### Écran 2 : Génération du Menu (Sur 7 jours)
+- Présentation d'un planificateur de repas complet couvrant 7 jours de la semaine.
+- Affichage clair de la provenance des ingrédients phares (ex: "Poulet - En promotion chez Métro cette semaine").
+
+### Écran 3 : Liste de Courses Optimisée
+- **Section Circulaire :** Les ingrédients à acheter en promotion dans les enseignes sélectionnées.
+- **Section Fond de Frigo / Placard :** Les ingrédients de base nécessaires aux recettes mais hors circulaires (sel, huile, condiments).
+
+## 3. Collecte Automatisée (Pipeline Data & Scraping)
+- **Source :** Collecte automatisée des données brutes des enseignes validées via l'URL : `https://flipp.com/en-ca/montreal-qc/flyers`.
+- **Fréquence :** Le script se déclenche automatiquement tous les 7 jours (durée de validité des circulaires).
+- **Cycle de vie :** Les données promotionnelles sont temporaires et écrasées à chaque mise à jour hebdomadaire.
+
+## 4. Règles de Gestion Métier & Extraction LLM
+Lors de l'aspiration des circulaires brutes, un agent LLM doit structurer les données en JSON selon les règles suivantes :
+- **Filtrage Strict :** Ignorer impérativement tous les produits non-alimentaires.
+- **Champs Obligatoires :** 
+  - `enseigne` (Nom du supermarché)
+  - `nom_produit`
+  - `prix_promo`
+  - `poids_volume` (Quantité ou poids de l'article)
+  - `unite_mesure`
+  - `categorie_alimentaire`
+- **Intelligence des Offres :** Le système doit être capable de détecter et catégoriser les formats promotionnels complexes (ex: "2 pour 1", "2+1 gratuit", "Vente par lot").
+
+Le défi du "Matching" (Mise en relation)
+Le plus difficile en base de données pour ce projet est que la circulaire écrit "Tomates Italiennes en grappe" alors que votre recette demande juste "Tomates".
+Deux solutions pour votre structure :
+La table de correspondance (Mapping) : Une table qui dit que "Tomates Italiennes", "Tomates de serre" et "Tomates Roma" appartiennent tous à la catégorie parente "Tomates".
+Le système de Tags : Chaque produit extrait reçoit un Tag_Standard. L'algorithme cherche alors les recettes qui demandent ce Tag_Standard.
+Exemple de flux en base de données :
+Le script insère : Poulet entier, 1.99$/lb chez Metro.
+L'algorithme cherche en base de données : Quelles recettes ont le tag "Poulet entier" ?
+Il trouve : "Poulet rôti aux herbes".
+Il vérifie : L'utilisateur est-il végétarien ? Non. Le prix rentre-t-il dans son budget ? Oui.
+Résultat : La recette est ajoutée au menu de la semaine.
+
+## 5. Stratégie de Données pour les Recettes
+Le système n'utilise pas de catalogue fixe. Les recettes sont générées dynamiquement "Just-In-Time" par une IA en croisant :
+1. Les contraintes du foyer (Budget, Boîtes à lunch, Nombre de personnes).
+2. Les 15 meilleurs rabais de la semaine extraits de la table des promotions.
+Chaque menu validé est stocké dans une table de cache pour optimiser les performances et limiter les coûts d'API lors des requêtes futures identiques.
+
+===========================================================================
+6. SPECIFICATIONS INTERFACE UTILISATEUR (UI) & EXPERIENCE UTILISATEUR (UX)
+===========================================================================
+
+6.1 DIRECTION ARTISTIQUE & CHARTE GRAPHIQUE
+L'interface doit inspirer la clarté, la fraîcheur de l'alimentation saine et la rigueur d'une gestion budgétaire maîtrisée. Le design est moderne, minimaliste et épuré (style "SaaS sobre").
+
+* Palette de Couleurs (Thématique Alimentation, Équilibre & Économie) :
+  - Couleur Principale (60%) : Blanc pur (#FFFFFF) et Gris très clair (#F9FAFB) pour un fond respirant, propre et lisible.
+  - Couleur Secondaire (30% - Équilibre & Nature) : Vert Émeraude doux ou Sauge (#10B981 / #059669) pour symboliser les produits frais, le score éco-responsable et l'alimentation saine.
+  - Couleur d'Accent (10% - Économie & Action) : Jaune Moutarde chaud ou Ocre (#F59E0B) pour attirer l'œil avec sobriété sur les promotions, les prix barrés et les gains cumulés.
+  - Textes : Anthracite Foncé (#1F2937) pour garantir un excellent contraste de lecture.
+
+* Typographie :
+  - Polices Sans-Serif modernes, géométriques et hautement lisibles (ex: Inter ou Roboto).
+
+6.2 STRUCTURE & ZONING DE L'INTERFACE (SINGLE PAGE APPLICATION)
+L'application s'organise en 3 sections majeures et interconnectées sur un même écran :
+
+1. En-tête (Header) & Tableau de Bord Flash :
+   - Rappel discret du profil utilisateur sélectionné (ex: "Foyer de 4 personnes").
+   - Indicateur clé de performance (KPI) : Le compteur d'économies estimées du mois en cours (mis en valeur par la couleur d'accent).
+
+2. Le Catalogue des Promotions d'Enseignes (Flux d'Entrée) :
+   - Grille de cartes épurées affichant les produits actuellement en promotion dans l'enseigne sélectionnée.
+   - Visuel sobre : Nom du produit, prix d'origine barré, nouveau prix promo en couleur d'accent, et badge de catégorie (ex: "Poissonnerie").
+
+3. Le Planificateur de Menus Équilibrés (Flux de Sortie) :
+   - Vue chronologique (du Lundi au Vendredi) présentant les recettes générées.
+   - Chaque recette affiche son titre, son temps de préparation, son "Eco-score" valorisé en vert, et un lien dynamique montrant quels produits en promotion ont été utilisés pour la composer.
+
+6.3 COMPOSANTS DE FORMULAIRES DE TEST (MODE FACTORY)
+Pour répondre aux besoins de test du MVP, l

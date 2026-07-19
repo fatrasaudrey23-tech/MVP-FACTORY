@@ -1,0 +1,80 @@
+[
+    {
+        "name": "Salade Quinoa Vegan",
+        "ingredients": [
+            "quinoa",
+            "légumes"
+        ],
+        "dietary_regimes": [
+            "vegan",
+            "sans_gluten"
+        ]
+    },
+    {
+        "name": "Curry de Légumes Indien",
+        "ingredients": [
+            "légumes",
+            "épices"
+        ],
+        "dietary_regimes": [
+            "végétarien",
+            "vegan"
+        ]
+    },
+    {
+        "name": "Pâtes Carbonara",
+        "ingredients": [
+            "pâtes",
+            "œufs",
+            "lardons"
+        ],
+        "dietary_regimes": [
+            "omnivore"
+        ]
+    },
+    {
+        "name": "Soupe de Lentilles",
+        "ingredients": [
+            "lentilles",
+            "carottes"
+        ],
+        "dietary_regimes": [
+            "végétarien",
+            "sans_gluten"
+        ]
+    },
+    {
+        "name": "Gâteau au Chocolat",
+        "ingredients": [
+            "chocolat",
+            "farine",
+            "œufs"
+        ],
+        "dietary_regimes": [
+            "végétarien"
+        ]
+    },
+    {
+        "name": "Tofu Scramble",
+        "ingredients": [
+            "tofu",
+            "légumes"
+        ],
+        "dietary_regimes": [
+            "vegan",
+            "sans_gluten",
+            "sans_lactose"
+        ]
+    },
+    {
+        "name": "Poulet Rôti",
+        "ingredients": [
+            "poulet",
+            "pommes de terre"
+        ],
+        "dietary_regimes": [
+            "omnivore",
+            "sans_gluten"
+        ]
+    }
+]

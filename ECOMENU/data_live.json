@@ -1,0 +1,380 @@
+{
+    "promotions": [
+        {
+            "nom_produit": "Laitues coeurs de romaine",
+            "categorie": "Fruits & Légumes",
+            "tag_standard": "laitue",
+            "prix_origine": 5.187,
+            "prix_promo": 3.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Laitue duo gen v",
+            "categorie": "Fruits & Légumes",
+            "tag_standard": "laitue",
+            "prix_origine": 3.8870000000000005,
+            "prix_promo": 2.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Laitue duo gen v",
+            "categorie": "Fruits & Légumes",
+            "tag_standard": "laitue",
+            "prix_origine": 3.8870000000000005,
+            "prix_promo": 2.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Laitue aquaverti",
+            "categorie": "Fruits & Légumes",
+            "tag_standard": "laitue",
+            "prix_origine": 5.187,
+            "prix_promo": 3.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Fromage parmigiano reggiano irresistible",
+            "categorie": "Produits Laitiers",
+            "tag_standard": "fromage",
+            "prix_origine": 12.987,
+            "prix_promo": 9.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Black diamond cheese slices",
+            "categorie": "Épicerie",
+            "tag_standard": "autre",
+            "prix_origine": 3.861,
+            "prix_promo": 2.97,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "P'tit québec cheese slices",
+            "categorie": "Épicerie",
+            "tag_standard": "autre",
+            "prix_origine": 6.474000000000001,
+            "prix_promo": 4.98,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "P'tit quebec cheese slices",
+            "categorie": "Épicerie",
+            "tag_standard": "autre",
+            "prix_origine": 6.474000000000001,
+            "prix_promo": 4.98,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Bière unibroue",
+            "categorie": "Boissons",
+            "tag_standard": "bière",
+            "prix_origine": 20.137,
+            "prix_promo": 15.49,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Bière corona extra",
+            "categorie": "Boissons",
+            "tag_standard": "bière",
+            "prix_origine": 30.537,
+            "prix_promo": 23.49,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Bière michelob ultra brasseur de montréal",
+            "categorie": "Boissons",
+            "tag_standard": "bière",
+            "prix_origine": 26.0,
+            "prix_promo": 20.0,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Bière molson canadian",
+            "categorie": "Boissons",
+            "tag_standard": "bière",
+            "prix_origine": 28.587,
+            "prix_promo": 21.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Natrel fine-filtered milk",
+            "categorie": "Épicerie",
+            "tag_standard": "autre",
+            "prix_origine": 5.954000000000001,
+            "prix_promo": 4.58,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Lait sans lactose natrel",
+            "categorie": "Produits Laitiers",
+            "tag_standard": "lait",
+            "prix_origine": 7.4750000000000005,
+            "prix_promo": 5.75,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Trensite whole milk powder 500 g",
+            "categorie": "Épicerie",
+            "tag_standard": "autre",
+            "prix_origine": 11.674000000000001,
+            "prix_promo": 8.98,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Beatrice lait de beurre",
+            "categorie": "Produits Laitiers",
+            "tag_standard": "lait",
+            "prix_origine": 3.8870000000000005,
+            "prix_promo": 2.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Filet de porc régulier ou mariné",
+            "categorie": "Boucherie",
+            "tag_standard": "porc",
+            "prix_origine": 5.187,
+            "prix_promo": 3.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Porc haché extra maigre",
+            "categorie": "Boucherie",
+            "tag_standard": "porc",
+            "prix_origine": 5.187,
+            "prix_promo": 3.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Pork chops central bone",
+            "categorie": "Épicerie",
+            "tag_standard": "autre",
+            "prix_origine": 3.497,
+            "prix_promo": 2.69,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Crevettes cuites décortiquées et déveinées",
+            "categorie": "Poissonnerie",
+            "tag_standard": "crevette",
+            "prix_origine": 9.087,
+            "prix_promo": 6.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Crevettes sauvages d'argentine",
+            "categorie": "Poissonnerie",
+            "tag_standard": "crevette",
+            "prix_origine": 4.537000000000001,
+            "prix_promo": 3.49,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Crevettes nordiques cuites du québec",
+            "categorie": "Poissonnerie",
+            "tag_standard": "crevette",
+            "prix_origine": 3.8870000000000005,
+            "prix_promo": 2.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Filets de saumon de 'atlantique frais ou brochettes de crevettes",
+            "categorie": "Poissonnerie",
+            "tag_standard": "crevette",
+            "prix_origine": 11.700000000000001,
+            "prix_promo": 9.0,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Filets de saumon frais de l'atlantique",
+            "categorie": "Poissonnerie",
+            "tag_standard": "saumon",
+            "prix_origine": 11.687000000000001,
+            "prix_promo": 8.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Filets de saumon de 'atlantique frais ou brochettes de crevettes",
+            "categorie": "Poissonnerie",
+            "tag_standard": "crevette",
+            "prix_origine": 11.700000000000001,
+            "prix_promo": 9.0,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Filets de saumon atlantique frais sans arêtes",
+            "categorie": "Poissonnerie",
+            "tag_standard": "saumon",
+            "prix_origine": 12.987,
+            "prix_promo": 9.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Filets de poisson seaquest®",
+            "categorie": "Poissonnerie",
+            "tag_standard": "saumon",
+            "prix_origine": 9.1,
+            "prix_promo": 7.0,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Bifteck d'aloyau à griller",
+            "categorie": "Boucherie",
+            "tag_standard": "bœuf",
+            "prix_origine": 12.844000000000001,
+            "prix_promo": 9.88,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Bifteck d'entrecôte de boeuf frais",
+            "categorie": "Boucherie",
+            "tag_standard": "bœuf",
+            "prix_origine": 16.887,
+            "prix_promo": 12.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Bifteck de côtes aaa platinum plus",
+            "categorie": "Boucherie",
+            "tag_standard": "bœuf",
+            "prix_origine": 18.187,
+            "prix_promo": 13.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Bifteck ou rôti de filet mignon de boeuf",
+            "categorie": "Boucherie",
+            "tag_standard": "bœuf",
+            "prix_origine": 23.101,
+            "prix_promo": 17.77,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Tomates sur vigne",
+            "categorie": "Fruits & Légumes",
+            "tag_standard": "tomate",
+            "prix_origine": 1.287,
+            "prix_promo": 0.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Poivrons doux assortis 4 un. ou tomates raisins 680 g",
+            "categorie": "Fruits & Légumes",
+            "tag_standard": "tomate",
+            "prix_origine": 5.187,
+            "prix_promo": 3.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Tomates de serre bella",
+            "categorie": "Fruits & Légumes",
+            "tag_standard": "tomate",
+            "prix_origine": 5.187,
+            "prix_promo": 3.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        },
+        {
+            "nom_produit": "Pain brioché promise",
+            "categorie": "Boulangerie",
+            "tag_standard": "pain",
+            "prix_origine": 9.087,
+            "prix_promo": 6.99,
+            "unite": "chacun",
+            "date_fin": "2026-06-30"
+        }
+    ],
+    "enseigne_selection": [
+        {
+            "nom_enseigne": "Adonis",
+            "distance_max_km": 5,
+            "fidelite_uniquement": false
+        },
+        {
+            "nom_enseigne": "Metro",
+            "distance_max_km": 5,
+            "fidelite_uniquement": false
+        },
+        {
+            "nom_enseigne": "Super C",
+            "distance_max_km": 5,
+            "fidelite_uniquement": false
+        },
+        {
+            "nom_enseigne": "Walmart",
+            "distance_max_km": 5,
+            "fidelite_uniquement": false
+        },
+        {
+            "nom_enseigne": "Maxi",
+            "distance_max_km": 5,
+            "fidelite_uniquement": false
+        },
+        {
+            "nom_enseigne": "Supermarché Aurès",
+            "distance_max_km": 5,
+            "fidelite_uniquement": false
+        },
+        {
+            "nom_enseigne": "Mayrand",
+            "distance_max_km": 5,
+            "fidelite_uniquement": false
+        },
+        {
+            "nom_enseigne": "Supermarche PA",
+            "distance_max_km": 5,
+            "fidelite_uniquement": false
+        },
+        {
+            "nom_enseigne": "Provigo",
+            "distance_max_km": 5,
+            "fidelite_uniquement": false
+        }
+    ],
+    "menus": [
+        {
+            "titre_recette": "Salade fraîche et Laitue croquante",
+            "jours_semaine": "Lundi",
+            "score_eco_score": "A",
+            "temps_preparation_min": 15
+        },
+        {
+            "titre_recette": "Sauté de Porc aux tomates fraîches",
+            "jours_semaine": "Mardi",
+            "score_eco_score": "B",
+            "temps_preparation_min": 25
+        }
+    ]
+}

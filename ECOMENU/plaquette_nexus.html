@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Product Studio - Plaquette</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Optimisation pour l'export PDF (Cmd + P) */
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .page-break { page-break-before: always; }
+            .shadow-xl { box-shadow: none !important; border: 1px solid #e5e7eb; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- En-tête / Hero Section -->
+    <header class="bg-slate-900 text-white py-20 px-8 text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <div class="max-w-4xl mx-auto relative z-10">
+            <h2 class="text-blue-400 font-bold tracking-widest uppercase text-sm mb-4">Innovation B2B</h2>
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight">Nexus Product Studio</h1>
+            <p class="text-xl md:text-2xl font-light text-gray-300 mb-8">
+                La séniorité d'une équipe d'experts.<br>
+                <span class="text-white font-semibold">La vitesse de l'Intelligence Artificielle.</span>
+            </p>
+            <p class="max-w-2xl mx-auto text-gray-400">
+                De l'idée complexe au prototype fonctionnel, nous transformons vos processus d'affaires en produits digitaux interactifs. Validez votre marché en quelques semaines, sans compromis sur l'architecture.
+            </p>
+        </div>
+    </header>
+
+    <!-- Section Confidentialité (Crucial pour B2B) -->
+    <section class="py-12 bg-blue-600 text-white">
+        <div class="max-w-6xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center mb-6 md:mb-0">
+                <i class="fas fa-lock text-4xl mr-6 opacity-80"></i>
+                <div>
+                    <h3 class="text-2xl font-bold">Votre idée vous appartient. À 100%.</h3>
+                    <p class="text-blue-100 mt-1">Accord de confidentialité (NDA) systématique avant tout échange.</p>
+                </div>
+            </div>
+            <div class="text-sm font-medium bg-blue-800 py-3 px-6 rounded-lg shadow-inner">
+                <i class="fas fa-code-branch mr-2"></i> Cession totale du code source à la livraison
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Équipe Augmentée -->
+    <section class="py-20 px-8 max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Notre Approche : L'Équipe Augmentée</h2>
+            <p class="text-gray-600 max-w-3xl mx-auto text-lg">
+                Notre usine logicielle propriétaire se charge de la production brute, permettant à notre Task Force de se concentrer sur ce qui a le plus de valeur : votre stratégie.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Profil 1 -->
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition">
+                <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6">
+                    <i class="fas fa-chess-knight"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Pilotage & Stratégie</h3>
+                <p class="text-sm font-semibold text-blue-600 mb-4">Certification PMP & ADN HEC Paris</p>
+                <p class="text-gray-600 text-sm leading-relaxed">
+                    Garantie du respect du périmètre, définition des KPIs métiers et pilotage Agile des Sprints de développement.
+                </p>
+            </div>
+            
+            <!-- Profil 2 -->
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition">
+                <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-2xl mb-6">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Architecture Data</h3>
+                <p class="text-sm font-semibold text-purple-600 mb-4">Expertise Base de Données (Brenda)</p>
+                <p class="text-gray-600 text-sm leading-relaxed">
+                    Structuration des bases relationnelles et sécurisation des flux. L'assurance d'une architecture technique prête à passer à l'échelle (Scale).
+                </p>
+            </div>
+
+            <!-- Profil 3 -->
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition">
+                <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Processus & Trésorerie</h3>
+                <p class="text-sm font-semibold text-emerald-600 mb-4">Lead Logistique & Finance (Kaleel)</p>
+                <p class="text-gray-600 text-sm leading-relaxed">
+                    Validation de la logique d'affaires. Fort d'une expérience de pointe (ex: flux CMA CGM), garantie de la viabilité des algorithmes transactionnels.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ligne de séparation pour impression PDF -->
+    <div class="page-break"></div>
+
+    <!-- Section Pricing -->
+    <section class="py-20 px-8 bg-gray-100">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Nos Offres Commando</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+                    De la validation de concept au développement Agile continu.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 items-center">
+                
+                <!-- Offre 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-md border border-gray-200 relative">
+                    <h3 class="text-2xl font-bold mb-2">Le PoC Flash</h3>
+                    <p class="text-gray-500 text-sm mb-6 h-10">Le crash-test de votre idée en prédictif strict. Idéal pour une levée de fonds.</p>
+                    <div class="text-4xl font-extrabold mb-4 text-gray-900">5 000 €</div>
+                    <div class="flex items-center text-blue-600 font-semibold mb-6 text-sm bg-blue-50 py-1.5 px-3 rounded-md w-fit">
+                        <i class="far fa-clock mr-2"></i> Livrable en 1 semaine
+                    </div>
+                    <ul class="space-y-3 mb-8 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i> Interface Cliquable B2B</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i> Scope verrouillé au Jour 1</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i> Cession du code source</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i> Document d'Architecture (DAT)</li>
+                    </ul>
+                </div>
+
+                <!-- Offre 2 (Recommandée) -->
+                <div class="bg-slate-900 text-white p-10 rounded-2xl shadow-2xl border border-blue-500 relative transform md:-translate-y-4">
+                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide shadow-lg">
+                        RECOMMANDÉ
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Le MVP Agile</h3>
+                    <p class="text-gray-400 text-sm mb-6 h-10">Un produit complet et robuste, avec la flexibilité d'absorber vos retours clients.</p>
+                    <div class="mb-1">
+                        <span class="text-lg text-gray-500 line-through mr-2">15 000 €</span>
+                        <span class="text-5xl font-extrabold text-white">12 000 €</span>
+                    </div>
+                    <p class="text-blue-400 text-sm font-medium mb-4">Facturation dégressive intégrée</p>
+                    <div class="flex items-center text-blue-300 font-semibold mb-6 text-sm bg-blue-900/50 py-1.5 px-3 rounded-md w-fit border border-blue-800">
+                        <i class="far fa-clock mr-2"></i> Livrable en 3 semaines
+                    </div>
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li><i class="fas fa-rocket text-blue-400 mr-2"></i> <strong>Semaine 1 :</strong> Fondations & Bases de données</li>
+                        <li><i class="fas fa-cog text-blue-400 mr-2"></i> <strong>Semaine 2 :</strong> Fonctionnalités Cœurs</li>
+                        <li><i class="fas fa-sync text-blue-400 mr-2"></i> <strong>Semaine 3 :</strong> Ajustements & Polissage UX</li>
+                        <li><i class="fas fa-shield-alt text-blue-400 mr-2"></i> Code source et propriété intellectuelle</li>
+                    </ul>
+                </div>
+
+                <!-- Offre 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-md border border-gray-200 relative">
+                    <h3 class="text-2xl font-bold mb-2">Extension Agile</h3>
+                    <p class="text-gray-500 text-sm mb-6 h-10">Product Management as a Service. Enrichissez votre produit à votre rythme.</p>
+                    <div class="text-4xl font-extrabold mb-4 text-gray-900">4 000 €<span class="text-lg font-normal text-gray-500"> / Sprint</span></div>
+                    <div class="flex items-center text-blue-600 font-semibold mb-6 text-sm bg-blue-50 py-1.5 px-3 rounded-md w-fit">
+                        <i class="far fa-clock mr-2"></i> Cycles d'1 semaine
+                    </div>
+                    <ul class="space-y-3 mb-8 text-sm text-gray-700">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i> Développements supplémentaires</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i> Facturation à la demande</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i> Synchronisation EST/CST</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i> Revues hebdomadaires (Vendredi)</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Légale & Contact -->
+    <footer class="bg-gray-900 text-gray-400 py-12 text-center text-sm">
+        <div class="max-w-4xl mx-auto px-8">
+            <h4 class="text-white text-xl font-bold mb-4">Prêt à prototyper l'avenir de vos processus ?</h4>
+            <p class="mb-8 text-gray-300">Contactez-nous pour planifier votre réunion de cadrage.</p>
+            <div class="border-t border-gray-800 pt-8 mt-8">
+                <p><strong>Nexus Product Studio</strong> est une marque commerciale éditée par <strong>Nexus Flow Consulting</strong>.</p>
+                <p class="mt-2 text-xs">Propulsé par des architectures Python, Streamlit et de l'Intelligence Artificielle de pointe. Zéro plateforme No-Code verrouillée.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,195 @@
+# 1. VISION ET CONTEXTE
+
+**Problématique Métier :** Dans un contexte d'inflation croissante et de charge mentale élevée pour les ménages, la planification des repas et l'optimisation du budget alimentaire sont devenues des défis majeurs. Les consommateurs perdent un temps précieux à éplucher les circulaires, peinent à imaginer des recettes variées basées sur les promotions, et sont sujets au gaspillage alimentaire.
+
+**Solution Produit (EcoMenu) :** EcoMenu est une plateforme SaaS B2C qui automatise l'intégralité du cycle de planification de repas en transformant les promotions des supermarchés en un plan de menus hebdomadaires optimisé et une liste de courses prête à l'emploi. En s'appuyant sur un pipeline de données automatisé (scraping) et une IA de génération de recettes, EcoMenu offre une triple proposition de valeur : économies financières directes, gain de temps significatif et réduction du gaspillage alimentaire.
+
+**Objectifs Stratégiques & KPIs :**
+*   **Activation :** Taux de génération du premier menu (> 70% des nouveaux inscrits).
+*   **Rétention :** Taux de rétention hebdomadaire (W1 > 40%) - les utilisateurs reviennent chaque semaine pour leur nouveau menu.
+*   **Valeur perçue :** Montant moyen d'économies estimées par foyer/mois.
+*   **Efficacité Opérationnelle :** Taux de succès du scraping (> 98%), Coût par menu généré (API LLM).
+
+# 2. PERSONAS ET PARCOURS UTILISATEURS
+
+### Persona 1 : La Famille Organisée (Cible Principale)
+*   **Qui :** "Mélanie", 38 ans, mère de 2 enfants, gestionnaire de projet.
+*   **Besoin :** "Je veux nourrir ma famille sainement sans passer mes soirées à planifier les repas et à comparer les circulaires. Mon budget n'est pas illimité et je déteste jeter de la nourriture."
+*   **Parcours Typique :**
+    1.  **Configuration Initiale :** Ouvre l'app, configure son foyer (4 personnes), son budget (ex: 150$/semaine), sélectionne ses magasins favoris (IGA, Super C), et active l'option "Boîtes à Lunch" avec les restes du dîner.
+    2.  **Génération :** Lance la génération du menu.
+    3.  **Validation & Ajustement :** Consulte le menu de 7 jours, apprécie que le poulet en promo chez IGA soit utilisé pour un rôti le dimanche et que les restes soient prévus pour les lunchs du lundi.
+    4.  **Action :** Valide le plan, récupère la liste de courses triée par enseigne et se rend au supermarché en toute sérénité.
+
+### Persona 2 : Le Jeune Adulte / Couple (Cible Secondaire)
+*   **Qui :** "Simon", 26 ans, développeur, vit en couple.
+*   **Besoin :** "On veut bien manger et découvrir de nouvelles recettes sans se ruiner. On fait souvent nos courses à l'instinct et on finit par dépenser trop ou jeter des légumes oubliés."
+*   **Parcours Typique :**
+    1.  **Configuration Rapide :** Foyer de 2 personnes, budget flexible, sélectionne Métro.
+    2.  **Découverte :** Lance la génération et découvre une recette de "Saumon à l'asiatique" car le saumon est en spécial cette semaine.
+    3.  **Organisation :** Utilise la liste de courses pour n'acheter que le nécessaire, notamment la section "Fond de placard" pour vérifier s'il lui reste de la sauce soja.
+
+# 3. CONTRAINTES LÉGALES ET TECHNIQUES (EDGE CASES)
+
+*   **Scraping & Propriété Intellectuelle :** Le scraping de `Flipp.com` doit être effectué en respectant leurs `robots.txt` et leurs conditions d'utilisation. L'architecture doit prévoir un mécanisme de "disjoncteur" (circuit breaker) et une surveillance pour détecter tout changement de structure du site source ou un blocage d'IP. Le pipeline doit être résilient aux échecs partiels.
+*   **Fiabilité de l'IA (LLM) :** Le LLM est sujet aux "hallucinations". Des garde-fous sont impératifs :
+    *   **Validation de Schéma :** Le JSON extrait doit être validé contre un schéma strict. Tout échec déclenche une alerte.
+    *   **Contrôle de Plausibilité :** Des règles automatiques doivent vérifier la cohérence des données extraites (ex: un prix ne peut être négatif, une catégorie doit appartenir à une liste prédéfinie).
+    *   **Human-in-the-loop (V1) :** Un back-office simple pourrait être nécessaire au lancement pour valider/corriger manuellement les extractions les plus incertaines.
+*   **Gestion des Données Personnelles (Loi 25 - Québec) :** Les préférences du foyer sont des données personnelles. Le consentement doit être explicite. Les données doivent être stockées de manière sécurisée et anonymisées pour l'analyse globale.
+*   **Edge Cases Métier :**
+    *   **Absence de promotions :** Que se passe-t-il si aucune promotion alimentaire pertinente n'est trouvée dans les enseignes sélectionnées ? Le système doit retourner un message clair à l'utilisateur et suggérer d'élargir la sélection d'enseignes.
+    *   **Budget inatteignable :** Si le budget max est trop bas pour un menu de 7 jours, l'application doit le notifier et proposer soit d'ajuster le budget, soit de générer un menu pour un nombre de jours réduit (ex: 5 jours).
+    *   **Allergies & Régimes Spécifiques :** Le MVP ne gère pas les allergies. Ceci doit être clairement indiqué et planifié comme une évolution critique (V2).
+    *   **Rupture de stock en magasin :** L'application ne peut garantir la disponibilité en magasin. Une mention légale doit le préciser.
+
+# 4. EPIC BACKLOG & USER STORIES (Format BDD)
+
+---
+### **EPIC 1 : Configuration et Personnalisation du Foyer**
+*Cette épopée couvre la première étape cruciale où l'utilisateur définit ses contraintes et préférences.*
+
+**USER STORY 1.1 : Définition du Budget Hebdomadaire**
+*   **En tant que** planificateur de repas, **je veux** définir mon budget hebdomadaire maximum via un curseur, **afin de** m'assurer que les menus générés respectent mes contraintes financières.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** je suis sur l'écran de configuration,
+    *   **Quand** je vois le filtre "Budget Maximum",
+    *   **Alors** il doit se présenter sous la forme d'un curseur (slider) avec des valeurs monétaires claires (e.g., de 50$ à 500$).
+    *   **Etant donné que** j'interagis avec le curseur,
+    *   **Quand** je le déplace et le relâche,
+    *   **Alors** la valeur sélectionnée est enregistrée dans mon profil.
+
+**USER STORY 1.2 : Sélection des Enseignes de Supermarché**
+*   **En tant que** consommateur, **je veux** sélectionner les supermarchés où je fais habituellement mes courses, **afin que** l'application utilise uniquement les promotions de ces enseignes.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** je suis sur l'écran de configuration,
+    *   **Quand** je vois la section "Sélection des Enseignes",
+    *   **Alors** une liste de logos cliquables (Métro, IGA, Provigo, etc.) est affichée.
+    *   **Etant donné que** je clique sur un ou plusieurs logos,
+    *   **Quand** je valide mon choix,
+    *   **Alors** ma sélection est enregistrée et sera utilisée comme source de données pour les promotions.
+
+**USER STORY 1.3 : Configuration de la Taille du Foyer**
+*   **En tant que** chef de famille, **je veux** indiquer le nombre de personnes dans mon foyer, **afin que** les quantités dans les recettes et la liste de courses soient ajustées en conséquence.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** je suis sur l'écran de configuration,
+    *   **Quand** je vois le filtre "Taille du Foyer",
+    *   **Alors** je peux sélectionner un nombre (ex: de 1 à 8) via un sélecteur simple (stepper +/- ou dropdown).
+
+**USER STORY 1.4 : Gestion des Boîtes à Lunch / Restes**
+*   **En tant qu'utilisateur** souhaitant optimiser mon budget et mon temps, **je veux** configurer la gestion des repas du midi (boîtes à lunch), **afin de** planifier les lunchs de la semaine et de réduire le gaspillage.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** je suis dans la configuration,
+    *   **Quand** j'active l'option "Gestion des Restes / Boîtes à Lunch",
+    *   **Alors** des options supplémentaires apparaissent : "Type de repas" (Réutilisation des restes, Repas froids spécifiques) et "Profil" (Enfants, Adultes).
+    *   **Etant donné que** je sélectionne "Réutilisation des restes",
+    *   **Quand** le menu est généré,
+    *   **Alors** les repas du midi doivent correspondre aux restes du dîner de la veille.
+
+---
+### **EPIC 2 : Pipeline de Données et Extraction IA**
+*Cette épopée technique et non-visible par l'utilisateur est le cœur du réacteur. Elle couvre la collecte et la structuration des données promotionnelles.*
+
+**USER STORY 2.1 : Collecte Automatisée des Circulaires (Scraping)**
+*   **En tant que** système, **je veux** exécuter un script de scraping toutes les semaines sur `https://flipp.com/en-ca/montreal-qc/flyers`, **afin de** récupérer les données brutes des nouvelles circulaires pour les enseignes validées.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** nous sommes mardi matin (jour de déclenchement),
+    *   **Quand** le script de scraping est exécuté,
+    *   **Alors** il doit télécharger le contenu HTML/data des circulaires cibles.
+    *   **Et** le script doit gérer les erreurs de réseau et les changements de structure de base via un système d'alerting.
+    *   **Et** les données collectées sont stockées temporairement et écrasent les données de la semaine précédente.
+
+**USER STORY 2.2 : Extraction et Structuration des Offres par LLM**
+*   **En tant que** Data Engineer, **je veux** qu'un agent LLM analyse les données brutes scrapées, **afin de** les transformer en un format JSON structuré et propre, en ne gardant que les produits alimentaires.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** les données brutes d'une circulaire sont disponibles,
+    *   **Quand** l'agent LLM les traite,
+    *   **Alors** il doit générer un fichier JSON contenant une liste d'objets.
+    *   **Et** chaque objet doit contenir les champs obligatoires : `enseigne`, `nom_produit`, `prix_promo`, `poids_volume`, `unite_mesure`, `categorie_alimentaire`.
+    *   **Et** tous les produits non-alimentaires (ex: "Papier toilette", "Pneus d'hiver") doivent être ignorés et ne pas apparaître dans le JSON final.
+    *   **Et** le système doit être capable d'interpréter et de normaliser les offres complexes (ex: "2 pour 5$" devient un `prix_promo` de 2.50$ à l'unité avec une note sur l'offre).
+
+---
+### **EPIC 3 : Génération de Menus et de Recettes**
+*Cette épopée couvre l'intelligence métier principale : la création du plan de repas.*
+
+**USER STORY 3.1 : Génération Dynamique de Recettes "Just-In-Time"**
+*   **En tant qu'utilisateur**, **je veux** que le système génère un menu complet pour 7 jours en se basant sur mes contraintes et les meilleures promotions de la semaine, **afin d'**obtenir un plan de repas optimisé et personnalisé.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** j'ai configuré mon profil (budget, foyer, enseignes) et que les promotions de la semaine sont traitées,
+    *   **Quand** je clique sur "Générer mon menu",
+    *   **Alors** l'IA sélectionne les 15 meilleures promotions pertinentes pour mon foyer.
+    *   **Et** l'IA génère un ensemble de recettes pour 7 jours qui utilisent ces ingrédients promotionnels, tout en respectant mon budget.
+    *   **Et** le menu généré est affiché dans le planificateur de repas.
+
+**USER STORY 3.2 : Mise en Cache des Menus Générés**
+*   **En tant que** système, **je veux** stocker chaque menu généré avec succès dans une table de cache, **afin de** réduire les coûts d'API et d'améliorer les temps de réponse pour les requêtes futures identiques.
+*   **Critères d'acceptation :**
+    *   **Étant donné qu'**un menu a été généré pour une combinaison de [Enseignes + Budget + Taille Foyer],
+    *   **Quand** la génération est terminée,
+    *   **Alors** le résultat (plan de repas + liste de courses) est stocké en cache avec une clé unique basée sur les paramètres d'entrée.
+    *   **Etant donné qu'**un autre utilisateur fait une requête avec les mêmes paramètres exacts,
+    *   **Quand** il lance la génération,
+    *   **Alors** le système doit d'abord vérifier le cache et retourner le résultat stocké s'il existe.
+
+**USER STORY 3.3 : Affichage du Menu Hebdomadaire**
+*   **En tant qu'utilisateur**, **je veux** visualiser mon menu généré sur une vue de 7 jours, **afin de** comprendre facilement ce que je vais manger chaque jour de la semaine.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** mon menu a été généré,
+    *   **Quand** j'arrive sur l'écran du menu,
+    *   **Alors** je vois une grille ou une liste couvrant 7 jours (Lundi à Dimanche).
+    *   **Et** chaque jour affiche clairement la recette prévue (ex: "Dîner : Poulet rôti aux herbes").
+    *   **Et** pour chaque recette, un indicateur visuel montre l'ingrédient phare en promotion et son enseigne (ex: "Poulet - En promotion chez Métro").
+
+---
+### **EPIC 4 : Normalisation des Produits et Liste de Courses**
+*Cette épopée traite du défi de la correspondance entre les noms de produits et la création de la liste d'achats finale.*
+
+**USER STORY 4.1 : Normalisation des Ingrédients via un Système de Tags**
+*   **En tant que** système, **je veux** assigner un `Tag_Standard` à chaque produit extrait de la circulaire, **afin de** pouvoir faire correspondre les produits en promotion avec les ingrédients requis par les recettes.
+*   **Critères d'acceptation :**
+    *   **Étant donné qu'**un produit "Tomates Italiennes en grappe" est extrait,
+    *   **Quand** il est traité par l'algorithme de normalisation,
+    *   **Alors** il doit se voir assigner le `Tag_Standard` : "Tomate".
+    *   **Etant donné qu'**une recette requiert l'ingrédient avec le `Tag_Standard` "Tomate",
+    *   **Quand** l'algorithme de matching s'exécute,
+    *   **Alors** il doit considérer le produit "Tomates Italiennes en grappe" comme une correspondance valide.
+
+**USER STORY 4.2 : Génération de la Liste de Courses Optimisée**
+*   **En tant qu'utilisateur**, **je veux** obtenir une liste de courses claire et structurée après avoir validé mon menu, **afin de** faire mes achats efficacement.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** j'ai un menu hebdomadaire validé,
+    *   **Quand** j'accède à la "Liste de Courses",
+    *   **Alors** elle doit être divisée en deux sections claires : "Promotions en Circulaire" et "Fond de Frigo / Placard".
+    *   **Et** la section "Promotions" doit regrouper les articles par enseigne sélectionnée.
+    *   **Et** la section "Fond de Frigo" doit lister les ingrédients de base (huile, sel, épices) nécessaires pour les recettes mais qui ne sont pas en promotion.
+
+---
+### **EPIC 5 : Interface et Expérience Utilisateur (UI/UX)**
+*Cette épopée traduit la vision artistique et l'ergonomie en exigences concrètes.*
+
+**USER STORY 5.1 : Application de la Charte Graphique**
+*   **En tant que** développeur Frontend, **je veux** implémenter la charte graphique définie (couleurs, typographie), **afin que** l'application soit visuellement cohérente, moderne et inspire confiance.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** la charte graphique est finalisée,
+    *   **Quand** je développe les composants de l'interface,
+    *   **Alors** les fonds doivent utiliser `#FFFFFF` / `#F9FAFB`, les éléments d'action principaux le vert `#10B981`, les accents promotionnels le jaune `#F59E0B` et les textes le `#1F2937`.
+    *   **Et** la police de caractères `Inter` ou `Roboto` doit être utilisée pour tous les textes.
+
+**USER STORY 5.2 : Implémentation du Tableau de Bord Flash**
+*   **En tant qu'utilisateur**, **je veux** voir un en-tête clair avec un résumé de mon profil et mes économies estimées, **afin de** rester conscient du contexte et de la valeur que m'apporte l'application.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** je suis connecté à l'application,
+    *   **Quand** je regarde l'en-tête,
+    *   **Alors** je vois un rappel de mon profil (ex: "Foyer de 4 personnes").
+    *   **Et** je vois un compteur d'économies estimées pour le mois en cours, mis en évidence avec la couleur d'accent jaune.
+
+**USER STORY 5.3 : Développement du Mode Factory pour les Tests MVP**
+*   **En tant que** testeur QA ou Product Owner, **je veux** accéder à un mode "Factory" pour les formulaires, **afin de** pouvoir pré-remplir rapidement les critères de configuration et tester efficacement les différents scénarios de génération de menu sans saisie manuelle répétitive.
+*   **Critères d'acceptation :**
+    *   **Étant donné que** l'application est lancée en environnement de test,
+    *   **Quand** j'ajoute un paramètre spécifique à l'URL (ex: `?mode=factory`),
+    *   **Alors** des boutons de pré-remplissage apparaissent à côté du formulaire de configuration (ex: "Remplir pour Famille", "Remplir pour Couple", "Budget Serré").
+    *   **Etant donné que** je clique sur un de ces boutons,
+    *   **Quand** l'action est exécutée,
+    *   **Alors** tous les champs du formulaire (budget, foyer, enseignes) sont instantanément remplis avec des données prédéfinies, me permettant de passer directement à la génération.

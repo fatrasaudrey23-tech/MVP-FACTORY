@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Flow Consulting — Senior IT Project Management & Product Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nexus: {
+                            bg: '#FAF8F5',       /* Fond beige chaud élégant */
+                            dark: '#0F172A',     /* Bleu ardoise très foncé pour les textes */
+                            accent: '#2563EB',   /* Bleu Cobalt moderne et pro */
+                            accentHover: '#1D4ED8',
+                            card: '#FFFFFF',     /* Fond blanc pur pour les cartes */
+                            border: '#E2E8F0'    /* Gris beige pour les bordures légères */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        // Détection automatique de la langue de l'utilisateur au premier chargement
+        const userLang = navigator.language || navigator.userLanguage;
+        const preferredLang = localStorage.getItem('preferred-lang');
+        
+        if (!preferredLang && !userLang.startsWith('fr')) {
+            window.location.href = 'index-en.html';
+        }
+
+        // Fonctions de changement manuel de langue
+        function switchToEN() {
+            localStorage.setItem('preferred-lang', 'en');
+            window.location.href = 'index-en.html';
+        }
+        function switchToFR() {
+            localStorage.setItem('preferred-lang', 'fr');
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+<body class="bg-nexus-bg text-nexus-dark font-sans antialiased selection:bg-nexus-accent selection:text-white">
+
+    <!-- NAVIGATION -->
+    <header class="sticky top-0 z-50 bg-nexus-bg/80 backdrop-blur-md border-b border-nexus-border">
+        <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-xl font-extrabold tracking-tight">Nexus Flow<span class="text-nexus-accent">.</span></span>
+                <span class="text-xs font-semibold uppercase tracking-wider px-2.5 py-1 bg-nexus-dark text-white rounded-full">Product Studio</span>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <nav class="hidden md:flex items-center gap-8 text-sm font-semibold">
+                    <a href="#projets" class="hover:text-nexus-accent transition-colors">Cas d'usage IA</a>
+                    <a href="#offres" class="hover:text-nexus-accent transition-colors">Offres & Tarifs</a>
+                    <a href="#contact" class="hover:text-nexus-accent transition-colors">Contact</a>
+                </nav>
+                
+                <!-- Sélecteur de Langue -->
+                <div class="flex items-center border border-nexus-border rounded-xl p-0.5 bg-white text-xs font-bold">
+                    <button onclick="switchToFR()" class="px-3 py-1.5 rounded-lg bg-nexus-accent text-white transition-all">FR</button>
+                    <button onclick="switchToEN()" class="px-3 py-1.5 rounded-lg text-gray-500 hover:text-nexus-dark transition-all">EN</button>
+                </div>
+
+                <a href="#offres" class="bg-nexus-accent hover:bg-nexus-accentHover text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-sm hover:shadow transition-all">
+                    Lancer un projet
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-nexus-accent text-xs font-bold mb-8">
+            <span class="w-2 h-2 rounded-full bg-nexus-accent animate-pulse"></span>
+            <span>✨ Nouvelle ère : Équipe Senior augmentée par l'IA</span>
+        </div>
+        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+            Votre produit digital en ligne en 3 semaines, <br class="hidden sm:inline">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-nexus-dark via-nexus-accent to-blue-500">à prix divisé par trois.</span>
+        </h1>
+        <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+            Le développement de logiciels change d'époque. En adoptant notre modèle d'<strong>équipe senior augmentée par l'IA</strong>, vous accédez à un nouveau standard d'efficacité : des solutions techniques plus intelligentes, livrées en un temps record, pour une rentabilité opérationnelle maximale.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-16">
+            <a href="#offres" class="w-full sm:w-auto bg-nexus-dark hover:bg-gray-800 text-white px-8 py-4 rounded-xl font-bold text-base shadow-lg hover:-translate-y-0.5 transition-all">
+                Découvrir l'offre 0% Risque
+            </a>
+            <a href="#projets" class="w-full sm:w-auto bg-white hover:bg-gray-50 text-nexus-dark border border-nexus-border px-8 py-4 rounded-xl font-bold text-base transition-all">
+                Voir nos cas d'usage
+            </a>
+        </div>
+
+        <!-- BANDEAU D'ARGUMENTS CHOC (VITESSE / PRIX / ÉQUIPE) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto p-6 bg-white rounded-2xl border border-nexus-border/80 shadow-sm text-left">
+            <div class="flex items-start gap-3.5">
+                <span class="text-xs font-black p-2.5 bg-blue-50 text-nexus-accent rounded-xl tracking-tighter">01</span>
+                <div>
+                    <h4 class="font-bold text-sm text-nexus-dark">Livraison Éclair</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">Sprints agiles intensifs. Votre première version en ligne en 2 à 3 semaines maximum.</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-3.5">
+                <span class="text-xs font-black p-2.5 bg-blue-50 text-nexus-accent rounded-xl tracking-tighter">02</span>
+                <div>
+                    <h4 class="font-bold text-sm text-nexus-dark">Équipe Augmentée IA</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">L'excellence de la gestion de projet humaine dopée aux outils IA de pointe.</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-3.5">
+                <span class="text-xs font-black p-2.5 bg-blue-50 text-nexus-accent rounded-xl tracking-tighter">03</span>
+                <div>
+                    <h4 class="font-bold text-sm text-nexus-dark">Tarification Agressive</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">Des coûts divisés par 3 par rapport aux agences classiques. Zéro coût caché.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION PROJETS PHARES -->
+    <section id="projets" class="max-w-6xl mx-auto px-6 py-20 border-t border-nexus-border/60">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-nexus-accent mb-2">Portfolio & Cas d'usage</h2>
+            <h3 class="text-3xl sm:text-4xl font-extrabold mb-4">Nos projets phares, des expertises pointues.</h3>
+            <p class="text-gray-600 text-sm sm:text-base">
+                Nous concevons des applications web et mobiles ancrées dans la réalité opérationnelle. Déroulez nos cas d'usage pour comprendre notre méthodologie de valeur.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- PROJET 1 : THÉRAPELIO -->
+            <div class="bg-nexus-card rounded-3xl p-8 border border-nexus-border shadow-sm hover:shadow-lg transition-all flex flex-col justify-between group relative overflow-hidden">
+                <div>
+                    <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
+                        <span class="text-2xl font-extrabold tracking-tighter text-nexus-dark">thérapelio<span class="text-nexus-accent">.</span></span>
+                        <span class="text-xs font-bold px-3 py-1 bg-blue-50 text-nexus-accent rounded-full">HealthTech & IA</span>
+                    </div>
+
+                    <div class="space-y-5 text-xs leading-relaxed mb-8">
+                        <div>
+                            <strong class="block text-nexus-dark font-bold text-sm mb-1">Le Défi</strong>
+                            <p class="text-gray-600">Détecter en amont les risques psychosociaux (RPS) et offrir un soutien psychologique immédiat aux salariés, sans jamais compromettre le secret médical ni la conformité RGPD.</p>
+                        </div>
+                        <div>
+                            <strong class="block text-nexus-dark font-bold text-sm mb-1">La Solution IA</strong>
+                            <p class="text-gray-600">Développement agile d'un assistant conversationnel empathique couplé à l'API Gemini. Architecture intégrant un bouclier éthique clinique en 3 couches avec anonymisation stricte en temps réel.</p>
+                        </div>
+                        <div>
+                            <strong class="block text-nexus-dark font-bold text-sm mb-1">Les Résultats</strong>
+                            <p class="text-gray-600 font-medium">Une disponibilité 24/7 pour soutenir les équipes et des tableaux de bord d'analyses agrégés permettant aux RH d'agir sur les causes de stress au travail en toute sécurité.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
+                    <span class="bg-gray-50 px-2.5 py-1 rounded-md">#IAGénérative</span>
+                    <span class="bg-gray-50 px-2.5 py-1 rounded-md">#SaaSB2B</span>
+                    <span class="bg-gray-50 px-2.5 py-1 rounded-md">#QVT</span>
+                </div>
+            </div>
+
+            <!-- PROJET 2 : ECOMENU -->
+            <div class="bg-nexus-card rounded-3xl p-8 border border-nexus-border shadow-sm hover:shadow-lg transition-all flex flex-col justify-between group relative overflow-hidden">
+                <div>
+                    <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
+                        <span class="text-2xl font-black tracking-tight text-emerald-900">Ecomenu</span>
+                        <span class="text-xs font-bold px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full">Smart Shopping</span>
+                    </div>
+
+                    <div class="space-y-5 text-xs leading-relaxed mb-8">
+                        <div>
+                            <strong class="block text-nexus-dark font-bold text-sm mb-1">Le Défi (Marché Canadien)</strong>
+                            <p class="text-gray-600">Contrer l'inflation alimentaire de la grande distribution canadienne et éliminer le casse-tête de la planification des repas pour des familles ayant des régimes ou restrictions spécifiques.</p>
+                        </div>
+                        <div>
+                            <strong class="block text-nexus-dark font-bold text-sm mb-1">La Solution Tech</strong>
+                            <p class="text-gray-600">Moteur d'agrégation automatisé qui scanne et analyse les circulaires et bons de réduction en vigueur, croisé avec un algorithme de génération de recettes sur-mesure respectant le budget et la santé.</p>
+                        </div>
+                        <div>
+                            <strong class="block text-nexus-dark font-bold text-sm mb-1">L'Usage & Résultat</strong>
+                            <p class="text-gray-600 font-medium">Une liste de courses optimisée instantanément avec les meilleures remises des enseignes, une maîtrise financière totale pour le foyer, et zéro charge mentale hebdomadaire.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
+                    <span class="bg-gray-50 px-2.5 py-1 rounded-md">#FoodTech</span>
+                    <span class="bg-gray-50 px-2.5 py-1 rounded-md">#MarchéCanadien</span>
+                    <span class="bg-gray-50 px-2.5 py-1 rounded-md">#Budgeting</span>
+                </div>
+            </div>
+
+            <!-- PROJET 3 : KOKO TAG -->
+            <div class="bg-nexus-card rounded-3xl p-8 border border-nexus-border shadow-sm hover:shadow-lg transition-all flex flex-col justify-between group relative overflow-hidden">
+                <div>
+                    <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
+                        <span class="text-xl font-black tracking-widest uppercase text-purple-950">Koko Tag</span>
+                        <span class="text-xs font-bold px-3 py-1 bg-purple-50 text-purple-800 rounded-full">Smart Tracking</span>
+                    </div>
+
+                    <div class="space-y-5 text-xs leading-relaxed mb-8">
+                        <div>
+                            <strong class="block text-nexus-dark font-bold text-sm mb-1">Le Défi</strong>
+                            <p class="text-gray-600">Éviter la perte définitive d'objets du quotidien (clés, bagages, matériel professionnel) sans avoir à acheter des traceurs GPS coûteux, et sans jamais divulguer les coordonnées personnelles des propriétaires.</p>
+                        </div>
+                        <div>
+                            <strong class="block text-nexus-dark font-bold text-sm mb-1">La Solution Tech</strong>
+                            <p class="text-gray-600">Plateforme web de génération et d'impression d'étiquettes QR Code sur-mesure, couplée à une application web et une messagerie sécurisée et anonyme faisant le pont entre le propriétaire et le tiers.</p>
+                        </div>
+                        <div>
+                            <strong class="block text-nexus-dark font-bold text-sm mb-1">L'Usage & Résultat</strong>
+                            <p class="text-gray-600 font-medium">Un simple scan de l'étiquette au smartphone par la personne qui trouve l'objet permet d'ouvrir un chat anonyme pour organiser sa restitution immédiate en toute confidentialité.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 flex flex-wrap gap-2 text-xs font-semibold text-gray-400">
+                    <span class="bg-gray-50 px-2.5 py-1 rounded-md">#LostAndFound</span>
+                    <span class="bg-gray-50 px-2.5 py-1 rounded-md">#QRPrint</span>
+                    <span class="bg-gray-50 px-2.5 py-1 rounded-md">#Anonymat</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION TARIFS & OFFRES -->
+    <section id="offres" class="max-w-6xl mx-auto px-6 py-20 border-t border-nexus-border/60">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-nexus-accent mb-2">Investissement & Vitesse</h2>
+            <h3 class="text-3xl sm:text-4xl font-extrabold mb-4">Un nouveau standard de rentabilité et de rapidité.</h3>
+            <p class="text-gray-600">L'alliance de l'intelligence artificielle et de la direction de projet senior réinvente la création de logiciels. En automatisant les tâches répétitives de code et de test, nous allouons 100 % de votre budget à ce qui crée une vraie valeur : l'architecture, l'expérience utilisateur et la performance métier.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+            
+            <!-- CARTE 1 : POC (OFFRE 0% RISQUE) -->
+            <div class="bg-nexus-card rounded-3xl p-8 border-2 border-nexus-accent shadow-xl relative flex flex-col justify-between">
+                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-nexus-accent text-white font-extrabold text-xs uppercase tracking-wider px-4 py-1.5 rounded-full shadow-sm">
+                    Offre 0% Risque
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-2 mt-2">Cadrage & Maquette V1</h4>
+                    <p class="text-xs text-gray-500 mb-6">Votre porte d'entrée vers le produit digital. Zéro risque financier.</p>
+                    <div class="flex items-baseline gap-1 mb-2">
+                        <span class="text-sm font-bold text-gray-400">À partir de</span>
+                        <span class="text-4xl font-extrabold text-nexus-dark">990 €</span>
+                    </div>
+                    <p class="text-xs font-semibold text-emerald-600 bg-emerald-50 p-2.5 rounded-lg mb-6 border border-emerald-100 flex items-center gap-2">
+                        <span>⏱️</span>
+                        <span><strong>Sprint 5 jours :</strong> 100 % Déductible ou intégralement remboursé.</span>
+                    </p>
+                    <ul class="space-y-3.5 text-sm mb-8">
+                        <li class="flex items-start gap-3 font-bold text-nexus-dark">
+                            <span class="text-nexus-accent font-extrabold">⏱️</span>
+                            <span>Livraison éclair en 5 jours ouvrés (1 semaine)</span>
+                        </li>
+                        <li class="flex items-start gap-3 font-bold text-nexus-dark">
+                            <span class="text-emerald-600 font-extrabold">✓</span>
+                            <span>100 % Déduit du prix du développement complet</span>
+                        </li>
+                        <li class="flex items-start gap-3 font-bold text-nexus-dark">
+                            <span class="text-emerald-600 font-extrabold">✓</span>
+                            <span>Satisfait ou remboursé sous 48h</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-600">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Atelier d'architecture technique & produit</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-600">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Maquette haute fidélité cliquable (3 écrans)</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-600">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Test technique & faisabilité API (IA/Data)</span>
+                        </li>
+                    </ul>
+                </div>
+                <a href="#contact" class="w-full block text-center bg-nexus-accent hover:bg-nexus-accentHover text-white py-3.5 rounded-xl font-bold text-sm shadow transition-all">
+                    Démarrer sans risque (5 jours)
+                </a>
+            </div>
+
+            <!-- CARTE 2 : PRODUIT COMPLET -->
+            <div class="bg-nexus-card rounded-3xl p-8 border border-nexus-border shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div>
+                    <h4 class="text-xl font-bold mb-2">Lancement V1</h4>
+                    <p class="text-xs text-gray-500 mb-6">Pour lancer votre produit sur le marché et signer vos premiers clients.</p>
+                    <div class="flex items-baseline gap-1 mb-1">
+                        <span class="text-sm font-bold text-gray-400">À partir de</span>
+                        <span class="text-4xl font-extrabold text-nexus-dark">3 900 €</span>
+                    </div>
+                    <p class="text-xs font-bold text-nexus-accent mb-6">
+                        (ou 2 910 € seulement après déduction du Cadrage)
+                    </p>
+                    <ul class="space-y-3.5 text-sm text-gray-600 mb-8">
+                        <li class="flex items-start gap-3">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Tout le contenu de l'étape Cadrage & Maquette</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Développement web ou mobile complet</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Intégration backend, base de données & IA</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Mise en ligne sur votre nom de domaine</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Direction de projet Senior dédiée</span>
+                        </li>
+                    </ul>
+                </div>
+                <a href="#contact" class="w-full block text-center bg-nexus-dark hover:bg-gray-800 text-white py-3.5 rounded-xl font-bold text-sm transition-all">
+                    Lancer mon application
+                </a>
+            </div>
+
+            <!-- CARTE 3 : SCALE & DELIVERY -->
+            <div class="bg-nexus-card rounded-3xl p-8 border border-nexus-border shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                <div>
+                    <h4 class="text-xl font-bold mb-2">Scale & Partenariat</h4>
+                    <p class="text-xs text-gray-500 mb-6">L'accompagnement continu pour faire évoluer votre application et votre technique.</p>
+                    <div class="flex items-baseline gap-1 mb-2">
+                        <span class="text-4xl font-extrabold text-nexus-dark">3 900 €</span>
+                        <span class="text-sm font-semibold text-gray-500">+ 890 € / mois</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-6">Sans engagement de durée longue • Résiliable</p>
+                    <ul class="space-y-3.5 text-sm text-gray-600 mb-8">
+                        <li class="flex items-start gap-3">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Livraison initiale de l'application V1 complète</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Direction de projet déléguée (Rôle PO/PM)</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Sprints d'améliorations & nouvelles fonctionnalités</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-nexus-accent font-bold">✓</span>
+                            <span>Maintenance technique, sécurité & monitoring</span>
+                        </li>
+                    </ul>
+                </div>
+                <a href="#contact" class="w-full block text-center bg-white hover:bg-gray-50 text-nexus-dark border border-nexus-border py-3.5 rounded-xl font-bold text-sm transition-all">
+                    En savoir plus
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION CONTACT -->
+    <section id="contact" class="max-w-4xl mx-auto px-6 py-20 text-center">
+        <div class="bg-nexus-dark text-white rounded-3xl p-10 sm:p-14 shadow-xl">
+            <h2 class="text-2xl sm:text-4xl font-extrabold mb-4">Prêt à construire votre produit ?</h2>
+            <p class="text-gray-300 max-w-xl mx-auto mb-8 text-sm sm:text-base leading-relaxed">
+                Réservez un échange direct avec un Senior Project Manager pour cadrer votre architecture et évaluer la faisabilité de votre projet.
+            </p>
+            <a href="mailto:contact@nexusflow-consulting.com?subject=Demande%20de%20cadrage%20Produit%20/%20Application" class="inline-block bg-nexus-accent hover:bg-nexus-accentHover text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:scale-105 transition-all">
+                Discuter de votre projet
+            </a>
+            <p class="text-xs text-gray-400 mt-6 font-medium">Réponse rapide garantie sous 24 heures • Confidentialité absolue (NDA)</p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-nexus-border py-8 text-center text-xs text-gray-500">
+        <p>© 2026 Nexus Flow Consulting. Tous droits réservés. • Senior Project Management & Product Studio.</p>
+    </footer>
+
+</body>
+</html>
