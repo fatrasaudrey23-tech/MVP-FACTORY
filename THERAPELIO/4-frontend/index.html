@@ -14,18 +14,18 @@
                 extend: {
                     colors: {
                         thera: {
-                            energie: '#d2702e', 
-                            stabilite: '#283252', 
-                            confiance: '#F8F4E6', 
-                            optimisme: '#f5d410', 
-                            technologie: '#F23457', 
-                            reflexion: '#323d8b', 
+                            energie: '#d2702e',
+                            stabilite: '#283252',
+                            confiance: '#F8F4E6',
+                            optimisme: '#f5d410',
+                            technologie: '#F23457',
+                            reflexion: '#323d8b',
                             chaleur: '#e4a740'
                         }
                     },
-                    fontFamily: { 
-                        sans: ['"Rethink Sans"', 'sans-serif'], 
-                        serif: ['"Fraunces"', 'serif'] 
+                    fontFamily: {
+                        sans: ['"Rethink Sans"', 'sans-serif'],
+                        serif: ['"Fraunces"', 'serif']
                     }
                 }
             }
@@ -33,13 +33,16 @@
     </script>
 </head>
 <body class="bg-thera-confiance text-thera-stabilite font-sans h-screen flex overflow-hidden">
-    
+
+    <!-- OVERLAY MOBILE (derrière le menu latéral en version téléphone) -->
+    <div id="sidebar-overlay" onclick="toggleSidebar(true)" class="fixed inset-0 bg-black/40 z-20 hidden md:hidden"></div>
+
     <!-- MENU LATÉRAL -->
-    <aside class="w-72 bg-white border-r border-thera-stabilite/5 shadow-sm flex flex-col z-10 justify-between shrink-0">
+    <aside id="sidebar" class="w-72 bg-white border-r border-thera-stabilite/5 shadow-sm flex flex-col z-30 justify-between shrink-0 fixed md:static inset-y-0 left-0 -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
         <div class="p-8 pb-4">
             <!-- Logo -->
             <img src="logo-principal_web.png" alt="Logo Thérapelio" class="w-56 mb-4 object-contain">
-            
+
             <nav class="mt-6 space-y-2">
                 <button id="nav-conversations" onclick="loadView('conversations')" class="w-full text-left px-4 py-3 rounded-xl bg-thera-confiance text-thera-energie font-semibold shadow-sm transition-all flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
@@ -59,7 +62,7 @@
                 </button>
             </nav>
         </div>
-        
+
         <div class="p-4 mb-4">
             <button onclick="loadView('urgence')" class="w-full bg-thera-technologie/10 hover:bg-thera-technologie text-thera-technologie hover:text-white border border-thera-technologie/20 px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
                 Appel d'urgence
@@ -68,23 +71,33 @@
     </aside>
 
     <!-- ZONE DE CONTENU PRINCIPALE -->
-    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
-        <header class="h-20 bg-thera-confiance/90 backdrop-blur-md flex items-center justify-between px-10 border-b border-thera-stabilite/5 z-10 shrink-0">
-            <h2 id="view-title" class="text-2xl font-bold font-serif text-thera-stabilite">Espace d'échange</h2>
-            <span id="view-badge" class="text-xs font-semibold px-3 py-1 bg-white rounded-full border border-thera-stabilite/10 text-thera-stabilite/70">🟢 En ligne • IA QVT</span>
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden min-w-0">
+        <header class="h-20 bg-thera-confiance/90 backdrop-blur-md flex items-center justify-between px-4 sm:px-10 border-b border-thera-stabilite/5 z-10 shrink-0">
+            <div class="flex items-center gap-2 min-w-0">
+                <button id="mobile-menu-btn" onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 rounded-lg hover:bg-white/60 text-thera-stabilite shrink-0" aria-label="Ouvrir le menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <h2 id="view-title" class="text-lg sm:text-2xl font-bold font-serif text-thera-stabilite truncate">Espace d'échange</h2>
+            </div>
+            <span id="view-badge" class="text-xs font-semibold px-3 py-1 bg-white rounded-full border border-thera-stabilite/10 text-thera-stabilite/70 shrink-0">🟢 En ligne • IA QVT</span>
         </header>
-        
-        <div class="flex-1 p-6 sm:p-10 overflow-y-auto">
-            <div id="content-area" class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-[2rem] shadow-sm border border-thera-stabilite/5 min-h-[550px] flex flex-col"></div>
+
+        <div class="flex-1 p-3 sm:p-6 md:p-10 overflow-y-auto">
+            <div id="content-area" class="max-w-4xl mx-auto bg-white p-4 sm:p-6 md:p-8 rounded-[2rem] shadow-sm border border-thera-stabilite/5 min-h-[550px] flex flex-col"></div>
         </div>
     </main>
 
+    <!-- MODALE BOÎTE À OUTILS -->
+    <div id="resource-modal-overlay" class="fixed inset-0 bg-black/50 z-40 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 relative">
+            <button onclick="fermerRessource()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-thera-confiance hover:bg-thera-stabilite/10 flex items-center justify-center text-thera-stabilite/60 hover:text-thera-stabilite transition-colors" aria-label="Fermer">✕</button>
+            <div id="resource-modal-content"></div>
+        </div>
+    </div>
+
     <script>
-        // Le double slash "//" désactive la ligne.
-        // Quand Brenda mettra le serveur à jour, il suffira d'inverser les commentaires.
-        // const API_BASE = "https://therapelio-api.onrender.com"; // Serveur de Production
-// const API_BASE = "https://therapelio-api.onrender.com"; // Serveur de Production (down pour le moment)
-       const API_BASE = "http://127.0.0.1:8001"; // Serveur Local (Test)
+        const API_BASE = "https://therapelio-api.onrender.com"; // Serveur de Production
+// const API_BASE = "http://127.0.0.1:8001"; // Serveur Local (Test)
 
         // Mémoire de conversation : générée à chaque chargement de page,
         // envoyée avec chaque message pour que l'IA garde le fil de l'échange.
@@ -100,14 +113,40 @@
         const sessionId = genererSessionId();
         let historique = [];
 
+        // Échappe le HTML avant injection dans le DOM (évite l'injection de script
+        // via un message tapé par l'utilisateur ou renvoyé par l'IA).
+        function echapperHtml(texte) {
+            const div = document.createElement('div');
+            div.textContent = texte ?? '';
+            return div.innerHTML;
+        }
+
+        function formaterHeure() {
+            return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function toggleSidebar(forceClose) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const estOuvert = !sidebar.classList.contains('-translate-x-full');
+            if (forceClose || estOuvert) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            }
+        }
+
         window.onload = () => loadView('conversations');
 
         function loadView(view) {
+            toggleSidebar(true); // referme le menu mobile après un clic de navigation
             const area = document.getElementById('content-area');
             const title = document.getElementById('view-title');
             const badge = document.getElementById('view-badge');
             const navIds = ['nav-conversations', 'nav-praticiens', 'nav-ressources', 'nav-bilans'];
-            
+
             navIds.forEach(id => {
                 const el = document.getElementById(id);
                 if(el) el.className = "w-full text-left px-4 py-3 rounded-xl text-thera-stabilite/70 hover:bg-thera-confiance font-medium transition-all flex items-center gap-3";
@@ -123,19 +162,22 @@
                 if(badge) badge.style.display = "inline-block";
                 area.innerHTML = `
                     <div class="flex flex-col h-[calc(100vh-220px)] min-h-[450px]">
-                        <div id="chat-history" class="flex-1 overflow-y-auto px-2 py-4 space-y-6 scroll-smooth">
-                            <div class="flex justify-start items-start gap-3">
-                                <div class="w-9 h-9 rounded-full bg-thera-stabilite text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>
-                                <div class="bg-thera-confiance text-thera-stabilite p-4 rounded-2xl rounded-tl-none shadow-sm text-sm border border-thera-stabilite/5 leading-relaxed">
-                                    <p class="font-bold mb-1">Bonjour 👋</p>
-                                    <p>Je suis l'assistant Thérapelio. En quoi puis-je vous accompagner aujourd'hui ?</p>
+                        <div id="chat-history" class="flex-1 overflow-y-auto px-2 py-4 space-y-5 scroll-smooth">
+                            <div class="flex flex-col items-start gap-1">
+                                <div class="flex justify-start items-start gap-3">
+                                    <div class="w-9 h-9 rounded-full bg-thera-stabilite text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>
+                                    <div class="bg-thera-confiance text-thera-stabilite p-4 rounded-2xl rounded-tl-none shadow-sm text-sm border border-thera-stabilite/5 leading-relaxed">
+                                        <p class="font-bold mb-1">Bonjour 👋</p>
+                                        <p>Je suis l'assistant Thérapelio. En quoi puis-je vous accompagner aujourd'hui ?</p>
+                                    </div>
                                 </div>
+                                <span class="text-[10px] text-thera-stabilite/40 pl-12">${formaterHeure()}</span>
                             </div>
                         </div>
-                        
-                        <div class="mt-4 pt-4 border-t border-thera-stabilite/10 px-2 flex gap-3 items-center">
-                            <textarea id="chat-input" rows="1" class="flex-1 bg-thera-confiance/40 border border-thera-stabilite/10 p-3.5 rounded-xl focus:outline-none focus:border-thera-energie focus:bg-white transition-all text-sm resize-none" placeholder="Écrivez votre message..." onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); envoyerMessage(); }"></textarea>
-                            <button onclick="envoyerMessage()" class="bg-thera-energie hover:bg-[#c26224] text-white px-6 py-3.5 rounded-xl font-semibold shadow-md hover:-translate-y-0.5 transition-all text-sm shrink-0">Envoyer</button>
+
+                        <div class="mt-4 pt-4 border-t border-thera-stabilite/10 px-2 flex gap-3 items-end">
+                            <textarea id="chat-input" rows="1" oninput="autoResizeTextarea(this)" class="flex-1 bg-thera-confiance/40 border border-thera-stabilite/10 p-3.5 rounded-xl focus:outline-none focus:border-thera-energie focus:bg-white transition-all text-sm resize-none max-h-36" placeholder="Écrivez votre message..." onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); envoyerMessage(); }"></textarea>
+                            <button id="chat-send-btn" onclick="envoyerMessage()" class="bg-thera-energie hover:bg-[#c26224] text-white px-6 py-3.5 rounded-xl font-semibold shadow-md hover:-translate-y-0.5 transition-all text-sm shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">Envoyer</button>
                         </div>
                     </div>`;
             } else if (view === 'praticiens') {
@@ -163,26 +205,26 @@
                 area.innerHTML = `
                     <div class="p-2">
                         <p class="text-thera-stabilite/70 mb-8 font-medium">Des ressources pratiques et rapides pour vous apaiser au quotidien, accessibles en un clic.</p>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Carte 1 : Cohérence Cardiaque -->
-                            <div class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
+                            <div onclick="ouvrirRessource('coherence')" class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
                                 <div class="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🫁</div>
                                 <h3 class="font-bold text-lg text-thera-stabilite mb-2">Cohérence cardiaque</h3>
-                                <p class="text-thera-stabilite/70 text-sm mb-4">Exercice de respiration de 5 minutes pour réduire instantanément le stress et l'anxiété.</p>
+                                <p class="text-thera-stabilite/70 text-sm mb-4">Exercice de respiration guidé pour réduire instantanément le stress et l'anxiété.</p>
                                 <span class="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Lancer l'exercice <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
                             </div>
 
                             <!-- Carte 2 : Méditation Express -->
-                            <div class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
+                            <div onclick="ouvrirRessource('meditation')" class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
                                 <div class="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🎧</div>
                                 <h3 class="font-bold text-lg text-thera-stabilite mb-2">Méditation express</h3>
-                                <p class="text-thera-stabilite/70 text-sm mb-4">Un guide audio de 3 minutes pour se recentrer avant une réunion ou après un coup de stress.</p>
-                                <span class="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Écouter l'audio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                                <p class="text-thera-stabilite/70 text-sm mb-4">Un guide pas-à-pas de quelques minutes pour se recentrer avant une réunion ou après un coup de stress.</p>
+                                <span class="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Suivre le guide <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
                             </div>
 
                             <!-- Carte 3 : Micro-pauses actives -->
-                            <div class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
+                            <div onclick="ouvrirRessource('etirements')" class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
                                 <div class="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🧘</div>
                                 <h3 class="font-bold text-lg text-thera-stabilite mb-2">Étirements au bureau</h3>
                                 <p class="text-thera-stabilite/70 text-sm mb-4">Quelques mouvements simples pour relâcher les tensions physiques accumulées devant l'écran.</p>
@@ -190,7 +232,7 @@
                             </div>
 
                             <!-- Carte 4 : Méthode ACT -->
-                            <div class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
+                            <div onclick="ouvrirRessource('defusion')" class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
                                 <div class="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🧭</div>
                                 <h3 class="font-bold text-lg text-thera-stabilite mb-2">Défusion cognitive</h3>
                                 <p class="text-thera-stabilite/70 text-sm mb-4">Apprenez à prendre de la distance avec vos pensées parasites grâce aux outils de la méthode ACT.</p>
@@ -215,6 +257,11 @@
             }
         }
 
+        function autoResizeTextarea(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 144) + 'px';
+        }
+
         async function chargerDispos(eventTypeId, containerId) {
             const container = document.getElementById(containerId);
             container.innerHTML = `<div class="text-thera-energie animate-pulse text-center py-4 font-medium">Recherche des créneaux en cours...</div>`;
@@ -225,7 +272,7 @@
                     const slotsData = result.data.slots;
                     const dates = Object.keys(slotsData);
                     if (dates.length === 0) return container.innerHTML = `<div class="text-center py-4 text-thera-stabilite/70">Aucune disponibilité sur les prochains jours.</div>`;
-                    
+
                     let slotsHtml = '<div class="grid grid-cols-2 gap-2 mt-3 max-h-60 overflow-y-auto p-1">';
                     for (const date of dates) {
                         for (const slot of slotsData[date]) {
@@ -242,15 +289,15 @@
         async function reserver(time, eventTypeId) {
             const container = document.getElementById('dispo-sarah');
             const dateHeure = new Date(time).toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-            
+
             container.innerHTML = `
                 <div class="mt-4 p-5 bg-thera-confiance/30 border border-thera-stabilite/10 rounded-xl shadow-inner">
                     <p class="font-bold text-thera-stabilite mb-1">Confirmer la réservation</p>
                     <p class="text-sm text-thera-energie font-semibold mb-4">📅 ${dateHeure}</p>
-                    
+
                     <input type="text" id="rdv-nom" placeholder="Votre prénom" class="w-full mb-3 p-3 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie">
                     <input type="email" id="rdv-email" placeholder="Votre e-mail professionnel" class="w-full mb-4 p-3 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie">
-                    
+
                     <div class="flex gap-2">
                         <button onclick="confirmerRDV('${time}', ${eventTypeId})" class="flex-1 bg-thera-stabilite hover:bg-thera-reflexion text-white py-3 rounded-xl font-bold text-sm transition-all shadow-sm">Valider le RDV</button>
                         <button onclick="chargerDispos(${eventTypeId}, 'dispo-sarah')" class="flex-1 bg-white border border-thera-stabilite/10 hover:bg-gray-50 text-thera-stabilite py-3 rounded-xl font-bold text-sm transition-all">Annuler</button>
@@ -262,57 +309,76 @@
         async function confirmerRDV(time, eventTypeId) {
             const name = document.getElementById('rdv-nom').value.trim();
             const email = document.getElementById('rdv-email').value.trim();
-            
+
             if (!name || !email) {
                 alert("Merci de remplir votre prénom et votre e-mail.");
                 return;
             }
-            
+
             const container = document.getElementById('dispo-sarah');
             container.innerHTML = `<div class="text-thera-energie animate-pulse text-center py-6 font-bold">Réservation en cours chez Cal.com...</div>`;
-            
+
             try {
                 const response = await fetch(`${API_BASE}/v1/bookings/create`, {
-                    method: 'POST', 
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ eventTypeId, start: time, name, email })
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (response.ok) {
                     container.innerHTML = `
                         <div class="mt-4 p-6 bg-green-50 border border-green-200 rounded-xl text-center">
                             <div class="text-3xl mb-2">✅</div>
-                            <p class="font-bold text-green-800 mb-2">Rendez-vous confirmé pour ${name} !</p>
-                            <p class="text-sm text-green-700">Le lien de la visioconférence a été envoyé à <b>${email}</b>.</p>
+                            <p class="font-bold text-green-800 mb-2">Rendez-vous confirmé pour ${echapperHtml(name)} !</p>
+                            <p class="text-sm text-green-700">Le lien de la visioconférence a été envoyé à <b>${echapperHtml(email)}</b>.</p>
                         </div>
                     `;
-                } else { 
+                } else {
                     container.innerHTML = `<div class="text-red-500 font-bold text-center mt-4">❌ Le créneau n'est plus disponible ou une erreur est survenue.</div>`;
                 }
-            } catch(e) { 
-                container.innerHTML = `<div class="text-red-500 font-bold text-center mt-4">Erreur réseau lors de la réservation.</div>`; 
+            } catch(e) {
+                container.innerHTML = `<div class="text-red-500 font-bold text-center mt-4">Erreur réseau lors de la réservation.</div>`;
             }
         }
 
         async function envoyerMessage() {
             const input = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('chat-send-btn');
             const message = input.value.trim();
             if (!message) return;
             const history = document.getElementById('chat-history');
-            
+
             history.innerHTML += `
-                <div class="flex justify-end items-end gap-2">
-                    <div class="bg-thera-stabilite text-white p-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm text-sm leading-relaxed">${message.replace(/\n/g, '<br>')}</div>
+                <div class="flex flex-col items-end gap-1">
+                    <div class="flex justify-end items-end gap-2">
+                        <div class="bg-thera-stabilite text-white p-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm text-sm leading-relaxed">${echapperHtml(message).replace(/\n/g, '<br>')}</div>
+                    </div>
+                    <span class="text-[10px] text-thera-stabilite/40 pr-1">${formaterHeure()}</span>
                 </div>`;
             input.value = '';
+            input.style.height = 'auto';
+            input.disabled = true;
+            sendBtn.disabled = true;
             history.scrollTop = history.scrollHeight;
 
             // On envoie l'historique précédent (sans le message courant) : le backend l'utilise
             // comme contexte de conversation et attend le nouveau message séparément.
             const historiqueEnvoye = [...historique];
             historique.push({ role: 'user', content: message });
+
+            const typingId = 'typing-' + Date.now();
+            history.innerHTML += `
+                <div id="${typingId}" class="flex justify-start items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-thera-stabilite text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>
+                    <div class="bg-thera-confiance p-4 rounded-2xl rounded-tl-none shadow-sm border border-thera-stabilite/5 flex gap-1.5 items-center">
+                        <span class="w-2 h-2 bg-thera-stabilite/40 rounded-full animate-bounce" style="animation-delay:0ms"></span>
+                        <span class="w-2 h-2 bg-thera-stabilite/40 rounded-full animate-bounce" style="animation-delay:150ms"></span>
+                        <span class="w-2 h-2 bg-thera-stabilite/40 rounded-full animate-bounce" style="animation-delay:300ms"></span>
+                    </div>
+                </div>`;
+            history.scrollTop = history.scrollHeight;
 
             try {
                 const response = await fetch(`${API_BASE}/v1/chat`, {
@@ -327,15 +393,181 @@
                     historique.push({ role: 'assistant', content: result.reply });
                 }
 
+                document.getElementById(typingId)?.remove();
                 history.innerHTML += `
-                    <div class="flex justify-start items-start gap-3">
-                        <div class="w-9 h-9 rounded-full ${isError ? 'bg-thera-technologie' : 'bg-thera-stabilite'} text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>
-                        <div class="${isError ? 'bg-red-50 text-thera-technologie border border-thera-technologie/20' : 'bg-thera-confiance text-thera-stabilite border border-thera-stabilite/5'} p-4 rounded-2xl rounded-tl-none max-w-[80%] shadow-sm text-sm leading-relaxed">${result.reply.replace(/\n/g, '<br>')}</div>
+                    <div class="flex flex-col items-start gap-1">
+                        <div class="flex justify-start items-start gap-3">
+                            <div class="w-9 h-9 rounded-full ${isError ? 'bg-thera-technologie' : 'bg-thera-stabilite'} text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>
+                            <div class="${isError ? 'bg-red-50 text-thera-technologie border border-thera-technologie/20' : 'bg-thera-confiance text-thera-stabilite border border-thera-stabilite/5'} p-4 rounded-2xl rounded-tl-none max-w-[80%] shadow-sm text-sm leading-relaxed">${echapperHtml(result.reply).replace(/\n/g, '<br>')}</div>
+                        </div>
+                        <span class="text-[10px] text-thera-stabilite/40 pl-12">${formaterHeure()}</span>
                     </div>`;
             } catch (err) {
+                document.getElementById(typingId)?.remove();
                 history.innerHTML += `<div class="text-red-500 text-xs text-center py-2 bg-red-50 rounded-xl border border-red-100">Impossible de joindre l'assistant (Erreur réseau).</div>`;
             }
+            input.disabled = false;
+            sendBtn.disabled = false;
+            input.focus();
             history.scrollTop = history.scrollHeight;
+        }
+
+        // ---------------------------------------------------------
+        // BOÎTE À OUTILS : contenus et logique des exercices
+        // ---------------------------------------------------------
+
+        function fermerRessource() {
+            const overlay = document.getElementById('resource-modal-overlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            arreterRespiration();
+        }
+
+        function ouvrirRessource(id) {
+            const overlay = document.getElementById('resource-modal-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+
+            if (id === 'coherence') {
+                document.getElementById('resource-modal-content').innerHTML = `
+                    <div class="text-center">
+                        <h3 class="text-2xl font-bold font-serif text-thera-stabilite mb-2">Cohérence cardiaque</h3>
+                        <p class="text-thera-stabilite/70 text-sm mb-8">Suis le cercle : inspire quand il grandit, expire quand il rétrécit. Arrête quand tu veux.</p>
+                        <div class="flex items-center justify-center h-56 mb-6">
+                            <div id="respiration-cercle" class="w-28 h-28 rounded-full bg-thera-energie/20 border-4 border-thera-energie flex items-center justify-center transition-transform ease-in-out" style="transition-duration:600ms">
+                                <span id="respiration-label" class="font-bold text-thera-energie text-sm">Prêt ?</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-thera-stabilite/50 mb-4"><span id="respiration-cycles">0</span> cycle(s) effectué(s)</p>
+                        <button id="respiration-btn" onclick="demarrerRespiration()" class="bg-thera-energie hover:bg-[#c26224] text-white px-6 py-3 rounded-xl font-semibold transition-all">Commencer</button>
+                    </div>`;
+            } else if (id === 'meditation') {
+                afficherGuide("Méditation express", "Guide pas-à-pas, prends le temps qu'il te faut à chaque étape.", GUIDE_MEDITATION_ETAPES);
+            } else if (id === 'etirements') {
+                afficherGuide("Étirements au bureau", "Fais chaque mouvement en douceur, sans forcer.", GUIDE_ETIREMENTS_ETAPES);
+            } else if (id === 'defusion') {
+                document.getElementById('resource-modal-content').innerHTML = `
+                    <h3 class="text-2xl font-bold font-serif text-thera-stabilite mb-4">Défusion cognitive</h3>
+                    <div class="text-sm text-thera-stabilite/80 space-y-4 leading-relaxed">${ARTICLE_DEFUSION}</div>`;
+            }
+        }
+
+        // --- Exercice de respiration (cercle animé) ---
+        let respirationTimer = null;
+        let respirationCycles = 0;
+        let respirationEnCours = false;
+
+        function demarrerRespiration() {
+            if (respirationEnCours) return;
+            respirationEnCours = true;
+            respirationCycles = 0;
+            const btn = document.getElementById('respiration-btn');
+            if (btn) { btn.innerText = "Arrêter"; btn.onclick = arreterRespiration; }
+            cycleRespiration();
+        }
+
+        function cycleRespiration() {
+            const cercle = document.getElementById('respiration-cercle');
+            const label = document.getElementById('respiration-label');
+            if (!cercle || !label) { respirationEnCours = false; return; }
+
+            cercle.style.transitionDuration = '4000ms';
+            cercle.style.transform = 'scale(1.6)';
+            label.innerText = 'Inspire...';
+
+            respirationTimer = setTimeout(() => {
+                const cercle2 = document.getElementById('respiration-cercle');
+                const label2 = document.getElementById('respiration-label');
+                if (!cercle2 || !label2) { respirationEnCours = false; return; }
+
+                cercle2.style.transitionDuration = '6000ms';
+                cercle2.style.transform = 'scale(1)';
+                label2.innerText = 'Expire...';
+
+                respirationTimer = setTimeout(() => {
+                    respirationCycles++;
+                    const compteur = document.getElementById('respiration-cycles');
+                    if (compteur) compteur.innerText = respirationCycles;
+                    if (respirationEnCours) cycleRespiration();
+                }, 6000);
+            }, 4000);
+        }
+
+        function arreterRespiration() {
+            respirationEnCours = false;
+            if (respirationTimer) { clearTimeout(respirationTimer); respirationTimer = null; }
+            const label = document.getElementById('respiration-label');
+            const cercle = document.getElementById('respiration-cercle');
+            const btn = document.getElementById('respiration-btn');
+            if (cercle) { cercle.style.transitionDuration = '600ms'; cercle.style.transform = 'scale(1)'; }
+            if (label) label.innerText = 'Prêt ?';
+            if (btn) { btn.innerText = 'Commencer'; btn.onclick = demarrerRespiration; }
+        }
+
+        // --- Guides pas-à-pas (méditation / étirements) ---
+        let guideTitre = '';
+        let guideDescription = '';
+        let guideEtapes = [];
+        let guideIndex = 0;
+
+        const GUIDE_MEDITATION_ETAPES = [
+            "Installe-toi confortablement, assis(e) ou allongé(e). Ferme les yeux si tu le souhaites.",
+            "Prends conscience de ton corps, du contact avec le sol ou la chaise. Relâche les épaules.",
+            "Porte ton attention sur ta respiration, sans chercher à la changer. Observe l'air qui entre et qui sort.",
+            "Si des pensées arrivent, c'est normal. Remarque-les, puis reviens doucement à ta respiration.",
+            "Élargis ton attention : les sons autour de toi, les sensations dans ton corps, l'instant présent.",
+            "Avant de rouvrir les yeux, prends une dernière grande respiration. Reviens à ton rythme."
+        ];
+
+        const GUIDE_ETIREMENTS_ETAPES = [
+            "Étirement du cou : penche doucement la tête vers l'épaule droite, maintiens 15-20 secondes. Puis change de côté.",
+            "Rotation des épaules : fais rouler tes épaules vers l'arrière, 5 fois lentement, puis vers l'avant.",
+            "Étirement des poignets : tends un bras devant toi, tire délicatement les doigts vers toi avec l'autre main. 15 secondes par côté.",
+            "Torsion du buste : assis(e), tourne doucement le buste vers la droite en gardant le bassin fixe, 15 secondes. Puis à gauche.",
+            "Étirement du dos : entrelace tes doigts, tends les bras devant toi en arrondissant le dos, 15 secondes.",
+            "Debout, étire-toi vers le plafond en inspirant profondément, puis relâche complètement."
+        ];
+
+        const ARTICLE_DEFUSION = `
+            <p>La défusion cognitive est un outil issu de la thérapie ACT (Acceptance and Commitment Therapy). L'idée : on n'a pas besoin de faire disparaître une pensée difficile pour aller mieux — on peut apprendre à prendre de la distance avec elle.</p>
+            <p><strong class="text-thera-stabilite">Une pensée n'est pas un fait.</strong> "Je suis nul(le)" est une pensée qui passe dans ton esprit, pas une vérité sur qui tu es.</p>
+            <p><strong class="text-thera-stabilite">Un exercice simple à essayer :</strong> quand une pensée difficile arrive, ajoute mentalement "Je remarque que j'ai la pensée que..." devant. "Je suis nul(le)" devient "Je remarque que j'ai la pensée que je suis nul(le)." Ça crée un petit espace entre toi et la pensée.</p>
+            <p><strong class="text-thera-stabilite">Autre technique :</strong> répète le mot qui te dérange à voix haute, très vite, une trentaine de fois. Le mot perd souvent son sens et devient presque absurde — c'est le but.</p>
+            <p class="text-thera-stabilite/60 text-xs pt-2">Ces exercices sont des outils de bien-être général, pas un traitement. Si une pensée revient souvent et pèse lourd, en parler avec un professionnel peut vraiment aider.</p>
+        `;
+
+        function afficherGuide(titre, description, etapes) {
+            guideTitre = titre;
+            guideDescription = description;
+            guideEtapes = etapes;
+            guideIndex = 0;
+            renderGuideEtape();
+        }
+
+        function renderGuideEtape() {
+            const content = document.getElementById('resource-modal-content');
+            const estDerniere = guideIndex === guideEtapes.length - 1;
+            content.innerHTML = `
+                <h3 class="text-2xl font-bold font-serif text-thera-stabilite mb-1">${guideTitre}</h3>
+                <p class="text-thera-stabilite/60 text-xs mb-6">${guideDescription}</p>
+                <div class="bg-thera-confiance/40 rounded-2xl p-6 mb-6 min-h-[120px] flex items-center justify-center text-center">
+                    <p class="text-thera-stabilite font-medium leading-relaxed">${guideEtapes[guideIndex]}</p>
+                </div>
+                <div class="flex items-center justify-between gap-3">
+                    <button onclick="guideNaviguer(-1)" ${guideIndex === 0 ? 'disabled' : ''} class="text-thera-stabilite/70 hover:text-thera-stabilite text-sm font-semibold disabled:opacity-0 disabled:pointer-events-none transition-opacity">← Précédent</button>
+                    <div class="flex gap-1.5">
+                        ${guideEtapes.map((_, i) => `<span class="w-2 h-2 rounded-full ${i === guideIndex ? 'bg-thera-energie' : 'bg-thera-stabilite/15'}"></span>`).join('')}
+                    </div>
+                    ${estDerniere
+                        ? `<button onclick="fermerRessource()" class="bg-thera-stabilite hover:bg-thera-reflexion text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all">Terminer</button>`
+                        : `<button onclick="guideNaviguer(1)" class="bg-thera-energie hover:bg-[#c26224] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all">Suivant →</button>`
+                    }
+                </div>`;
+        }
+
+        function guideNaviguer(delta) {
+            guideIndex = Math.max(0, Math.min(guideEtapes.length - 1, guideIndex + delta));
+            renderGuideEtape();
         }
     </script>
 </body>
