@@ -32,26 +32,6 @@
         }
     </script>
 </head>
-<script>
-    async function sendMessageToTherapelio(userMessage) {
-        // 1. Appel vers ton API locale (port 8001)
-        const response = await fetch('http://127.0.0.1:8001/v1/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: userMessage })
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-            console.log("Réponse de Thérapelio :", data.reply);
-            // Ici, tu pourras injecter data.reply dans ta div de chat
-            alert(data.reply); 
-        } else {
-            console.error("Erreur :", data.reply);
-        }
-    }
-</script>
 <body class="bg-thera-confiance text-thera-stabilite font-sans h-screen flex overflow-hidden">
     
     <!-- MENU LATÉRAL -->
@@ -89,7 +69,6 @@
 
     <!-- ZONE DE CONTENU PRINCIPALE -->
     <main class="flex-1 flex flex-col h-full relative overflow-hidden">
-        <!-- Correction : ajout de l'espace entre h-20 et bg-thera-confiance/90 -->
         <header class="h-20 bg-thera-confiance/90 backdrop-blur-md flex items-center justify-between px-10 border-b border-thera-stabilite/5 z-10 shrink-0">
             <h2 id="view-title" class="text-2xl font-bold font-serif text-thera-stabilite">Espace d'échange</h2>
             <span id="view-badge" class="text-xs font-semibold px-3 py-1 bg-white rounded-full border border-thera-stabilite/10 text-thera-stabilite/70">🟢 En ligne • IA QVT</span>
@@ -101,7 +80,11 @@
     </main>
 
     <script>
-        const API_BASE = "https://therapelio-api.onrender.com";
+        // Le double slash "//" désactive la ligne. 
+        // Quand Brenda mettra le serveur à jour, il suffira d'inverser les commentaires.
+        // const API_BASE = "https://therapelio-api.onrender.com"; // Serveur de Production
+       const API_BASE = "https://therapelio-api.onrender.com"; // Serveur de Production
+// const API_BASE = "http://127.0.0.1:8001"; // Serveur Local (Test)
         window.onload = () => loadView('conversations');
 
         function loadView(view) {
@@ -135,7 +118,6 @@
                             </div>
                         </div>
                         
-                        <!-- Correction : items-center pour un alignement vertical parfait -->
                         <div class="mt-4 pt-4 border-t border-thera-stabilite/10 px-2 flex gap-3 items-center">
                             <textarea id="chat-input" rows="1" class="flex-1 bg-thera-confiance/40 border border-thera-stabilite/10 p-3.5 rounded-xl focus:outline-none focus:border-thera-energie focus:bg-white transition-all text-sm resize-none" placeholder="Écrivez votre message..." onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); envoyerMessage(); }"></textarea>
                             <button onclick="envoyerMessage()" class="bg-thera-energie hover:bg-[#c26224] text-white px-6 py-3.5 rounded-xl font-semibold shadow-md hover:-translate-y-0.5 transition-all text-sm shrink-0">Envoyer</button>
@@ -155,14 +137,52 @@
                                     <p class="text-thera-energie font-medium text-sm">Psychologue du travail & QVT</p>
                                 </div>
                             </div>
-                            <button onclick="chargerDispos(6153510, 'dispo-sarah')" class="w-full py-3 bg-thera-stabilite hover:bg-thera-reflexion text-white rounded-xl font-semibold transition-all shadow-sm">Voir les disponibilités (72h)</button>
+                            <!-- Identifiant fonctionnel de ton compte Cal.com gratuit -->
+                            <button onclick="chargerDispos(6851496, 'dispo-sarah')" class="w-full py-3 bg-thera-stabilite hover:bg-thera-reflexion text-white rounded-xl font-semibold transition-all shadow-sm">Voir les disponibilités (72h)</button>
                             <div id="dispo-sarah" class="mt-4 text-sm"></div>
                         </div>
                     </div>`;
             } else if (view === 'ressources') {
                 title.innerText = "Boîte à outils bien-être";
                 if(badge) badge.style.display = "none";
-                area.innerHTML = `<div class="p-8 text-center text-thera-stabilite/60"><p class="text-lg font-medium">Exercices de respiration, méditations et outils ACT à venir dans la prochaine version...</p></div>`;
+                area.innerHTML = `
+                    <div class="p-2">
+                        <p class="text-thera-stabilite/70 mb-8 font-medium">Des ressources pratiques et rapides pour vous apaiser au quotidien, accessibles en un clic.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Carte 1 : Cohérence Cardiaque -->
+                            <div class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
+                                <div class="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🫁</div>
+                                <h3 class="font-bold text-lg text-thera-stabilite mb-2">Cohérence cardiaque</h3>
+                                <p class="text-thera-stabilite/70 text-sm mb-4">Exercice de respiration de 5 minutes pour réduire instantanément le stress et l'anxiété.</p>
+                                <span class="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Lancer l'exercice <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                            </div>
+
+                            <!-- Carte 2 : Méditation Express -->
+                            <div class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
+                                <div class="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🎧</div>
+                                <h3 class="font-bold text-lg text-thera-stabilite mb-2">Méditation express</h3>
+                                <p class="text-thera-stabilite/70 text-sm mb-4">Un guide audio de 3 minutes pour se recentrer avant une réunion ou après un coup de stress.</p>
+                                <span class="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Écouter l'audio <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                            </div>
+
+                            <!-- Carte 3 : Micro-pauses actives -->
+                            <div class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
+                                <div class="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🧘</div>
+                                <h3 class="font-bold text-lg text-thera-stabilite mb-2">Étirements au bureau</h3>
+                                <p class="text-thera-stabilite/70 text-sm mb-4">Quelques mouvements simples pour relâcher les tensions physiques accumulées devant l'écran.</p>
+                                <span class="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Voir les postures <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                            </div>
+
+                            <!-- Carte 4 : Méthode ACT -->
+                            <div class="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer">
+                                <div class="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">🧭</div>
+                                <h3 class="font-bold text-lg text-thera-stabilite mb-2">Défusion cognitive</h3>
+                                <p class="text-thera-stabilite/70 text-sm mb-4">Apprenez à prendre de la distance avec vos pensées parasites grâce aux outils de la méthode ACT.</p>
+                                <span class="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Lire l'article <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                            </div>
+                        </div>
+                    </div>`;
             } else if (view === 'bilans') {
                 title.innerText = "Mes Bilans";
                 if(badge) badge.style.display = "none";
@@ -205,28 +225,59 @@
         }
 
         async function reserver(time, eventTypeId) {
-            const name = prompt("Pour confirmer ce créneau, quel est votre prénom ?");
-            if (!name) return;
-            const email = prompt("Et votre email (pour recevoir le lien de visio) ?");
-            if (!email) return;
+            const container = document.getElementById('dispo-sarah');
+            const dateHeure = new Date(time).toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+            
+            container.innerHTML = `
+                <div class="mt-4 p-5 bg-thera-confiance/30 border border-thera-stabilite/10 rounded-xl shadow-inner">
+                    <p class="font-bold text-thera-stabilite mb-1">Confirmer la réservation</p>
+                    <p class="text-sm text-thera-energie font-semibold mb-4">📅 ${dateHeure}</p>
+                    
+                    <input type="text" id="rdv-nom" placeholder="Votre prénom" class="w-full mb-3 p-3 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie">
+                    <input type="email" id="rdv-email" placeholder="Votre e-mail professionnel" class="w-full mb-4 p-3 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie">
+                    
+                    <div class="flex gap-2">
+                        <button onclick="confirmerRDV('${time}', ${eventTypeId})" class="flex-1 bg-thera-stabilite hover:bg-thera-reflexion text-white py-3 rounded-xl font-bold text-sm transition-all shadow-sm">Valider le RDV</button>
+                        <button onclick="chargerDispos(${eventTypeId}, 'dispo-sarah')" class="flex-1 bg-white border border-thera-stabilite/10 hover:bg-gray-50 text-thera-stabilite py-3 rounded-xl font-bold text-sm transition-all">Annuler</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function confirmerRDV(time, eventTypeId) {
+            const name = document.getElementById('rdv-nom').value.trim();
+            const email = document.getElementById('rdv-email').value.trim();
+            
+            if (!name || !email) {
+                alert("Merci de remplir votre prénom et votre e-mail.");
+                return;
+            }
+            
+            const container = document.getElementById('dispo-sarah');
+            container.innerHTML = `<div class="text-thera-energie animate-pulse text-center py-6 font-bold">Réservation en cours chez Cal.com...</div>`;
             
             try {
-                const r = await fetch(`${API_BASE}/v1/bookings/create`, {
+                const response = await fetch(`${API_BASE}/v1/bookings/create`, {
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ eventTypeId, start: time, name, email })
                 });
                 
-                const result = await r.json();
+                const result = await response.json();
                 
-                if (r.ok) {
-                    const cancelLink = result.data?.cancelUrl || result.booking?.cancelUrl || "Inconnu (vérifiez vos e-mails)";
-                    alert(`✅ Rendez-vous confirmé pour ${name} !\n\nUn e-mail de confirmation contenant votre lien de visioconférence a été envoyé à ${email}.\n\nLien direct de gestion (annuler/modifier) :\n${cancelLink}`);
+                if (response.ok) {
+                    container.innerHTML = `
+                        <div class="mt-4 p-6 bg-green-50 border border-green-200 rounded-xl text-center">
+                            <div class="text-3xl mb-2">✅</div>
+                            <p class="font-bold text-green-800 mb-2">Rendez-vous confirmé pour ${name} !</p>
+                            <p class="text-sm text-green-700">Le lien de la visioconférence a été envoyé à <b>${email}</b>.</p>
+                        </div>
+                    `;
                 } else { 
-                    alert("❌ Le créneau n'est plus disponible ou une erreur est survenue.");
+                    container.innerHTML = `<div class="text-red-500 font-bold text-center mt-4">❌ Le créneau n'est plus disponible ou une erreur est survenue.</div>`;
                 }
             } catch(e) { 
-                alert("Erreur réseau lors de la réservation."); 
+                container.innerHTML = `<div class="text-red-500 font-bold text-center mt-4">Erreur réseau lors de la réservation.</div>`; 
             }
         }
 
@@ -236,7 +287,6 @@
             if (!message) return;
             const history = document.getElementById('chat-history');
             
-            // Bulle utilisateur (à droite)
             history.innerHTML += `
                 <div class="flex justify-end items-end gap-2">
                     <div class="bg-thera-stabilite text-white p-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm text-sm leading-relaxed">${message.replace(/\n/g, '<br>')}</div>
@@ -249,7 +299,6 @@
                 const result = await response.json();
                 const isError = result.status === "error";
                 
-                // Bulle IA (à gauche)
                 history.innerHTML += `
                     <div class="flex justify-start items-start gap-3">
                         <div class="w-9 h-9 rounded-full ${isError ? 'bg-thera-technologie' : 'bg-thera-stabilite'} text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>

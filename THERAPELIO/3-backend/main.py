@@ -1,15 +1,18 @@
 import os
-import time
+import requests
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
-from prompts import FEW_SHOT_EXAMPLES, THERAPELIO_SYSTEM_INSTRUCTION
+from prompts import FEW_SHOT_EXAMPLES, THERAPELIO_SYSTEM_INSTRUCTION, MODULES_PARCOURS
 from pydantic import BaseModel
 
 # 1. Chargement des variables d'environnement
 load_dotenv()
+if not os.getenv("GEMINI_API_KEY"):
+    load_dotenv(dotenv_path="../.env")
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 CALCOM_API_KEY = os.getenv("CALCOM_API_KEY")
 CALCOM_BASE_URL = "https://api.cal.com/v2"
@@ -20,7 +23,7 @@ if GEMINI_API_KEY:
 # 2. Initialisation de l'App FastAPI
 app = FastAPI(
     title="Therapelio API",
-    description="Backend IA QVT avec Bouclier Éthique et Sélection Auto-Réparatrice",
+    description="Backend IA QVT - Moteur Auto-Réparateur Restauré",
 )
 
 app.add_middleware(
@@ -31,12 +34,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# 3. Modèles de données Pydantic
 class ChatMessage(BaseModel):
+    session_id: str = "default_session"
     message: str
     history: list = []
-
 
 class BookingRequest(BaseModel):
     eventTypeId: int
@@ -45,13 +46,12 @@ class BookingRequest(BaseModel):
     email: str
 
 
-# 4. MOTEUR AUTO-RÉPARATEUR : Sélection et mémorisation du modèle valide
+# 3. LE MOTEUR AUTO-RÉPARATEUR ORIGINEL
 ACTIVE_WORKING_MODEL = None
 MODEL_BLACKLIST = set()
 
-
 def get_candidate_models():
-    """Récupère et trie les modèles disponibles en excluant ceux qui ont déjà échoué."""
+    """Récupère et trie les modèles disponibles en excluant la blacklist."""
     try:
         models = [
             m.name
@@ -59,7 +59,6 @@ def get_candidate_models():
             if "generateContent" in m.supported_generation_methods
             and m.name not in MODEL_BLACKLIST
         ]
-        # On teste en priorité les modèles "flash", puis "pro", puis les autres
         flash_models = [m for m in models if "flash" in m.lower()]
         other_models = [m for m in models if "flash" not in m.lower()]
         return flash_models + other_models
@@ -71,100 +70,96 @@ def get_candidate_models():
             "gemini-1.0-pro",
         ]
 
-
-# 5. Routes de l'API
-
-
-@app.post("/v1/chat")
-async def chat_with_therapelio(chat: ChatMessage):
-    global ACTIVE_WORKING_MODEL
-
-    if not GEMINI_API_KEY:
-        return {
-            "status": "error",
-            "reply": "L'IA est déconnectée (clé API manquante).",
-        }
-
-    if not chat.message.strip():
-        return {
-            "status": "error",
-            "reply": "Le message ne peut pas être vide.",
-        }
-
-    # Construction de l'historique : Exemples Few-Shot + Historique de session
-    full_history = FEW_SHOT_EXAMPLES.copy()
-    for msg in chat.history:
-        full_history.append(
-            {"role": msg.get("role"), "parts": [msg.get("content")]}
-        )
-
-    # Si on a déjà identifié le modèle fonctionnel, on l'utilise directement
-    candidates = (
-        [ACTIVE_WORKING_MODEL]
-        if ACTIVE_WORKING_MODEL
-        else get_candidate_models()
-    )
+def generate_with_auto_healing(message: str, history: list, system_instruction: str):
+    global ACTIVE_WORKING_MODEL, MODEL_BLACKLIST
+    
+    candidates = [ACTIVE_WORKING_MODEL] if ACTIVE_WORKING_MODEL else get_candidate_models()
+    
+    # Correction stricte du format d'historique pour éviter l'erreur de dictionnaire
+    formatted_history = []
+    for h in history:
+        role = h.get("role", "user")
+        if role == "assistant":
+            role = "model"
+        parts = h.get("parts", h.get("content", ""))
+        if isinstance(parts, str):
+            parts = [parts]
+        formatted_history.append({"role": role, "parts": parts})
 
     for model_name in candidates:
         try:
-            if not ACTIVE_WORKING_MODEL:
-                print(f"🔄 Test de communication avec : {model_name}...")
-
             model = genai.GenerativeModel(
                 model_name=model_name,
-                system_instruction=THERAPELIO_SYSTEM_INSTRUCTION,
+                system_instruction=system_instruction,
             )
-            chat_session = model.start_chat(history=full_history)
+            chat_session = model.start_chat(history=formatted_history)
+            response = chat_session.send_message(message)
 
-            # C'est ici que le serveur Google est contacté :
-            response = chat_session.send_message(chat.message)
-
-            # Si le modèle répond, c'est une victoire ! On le mémorise à vie.
+            # Verrouillage du premier modèle qui répond sans erreur 404
             if not ACTIVE_WORKING_MODEL:
                 ACTIVE_WORKING_MODEL = model_name
-                print(
-                    f"✅ SUCCÈS ! Modèle officiel adopté : {ACTIVE_WORKING_MODEL}"
-                )
+                print(f"✅ SUCCÈS ! Modèle verrouillé : {ACTIVE_WORKING_MODEL}")
 
-            return {
-                "status": "success",
-                "reply": response.text,
-                "security": "act_protocol_and_zero_retention_verified",
-                "model_used": model_name,
-            }
+            return response.text, model_name
 
         except Exception as e:
             error_str = str(e)
-            print(f"⚠️ Échec sur {model_name} ({error_str[:60]}...).")
-
-            # Si le modèle est obsolète ou restreint (404), on le blacklist et le code teste automatiquement le suivant !
-            if (
-                "404" in error_str
-                or "not found" in error_str.lower()
-                or "no longer available" in error_str.lower()
-            ):
-                print(
-                    f"🚫 Modèle {model_name} restreint par Google. Passage instantané au candidat suivant..."
-                )
+            print(f"⚠️ Échec sur {model_name}...")
+            
+            # Mise en liste noire des modèles inaccessibles ou restreints
+            if "404" in error_str or "not found" in error_str.lower() or "no longer available" in error_str.lower():
                 MODEL_BLACKLIST.add(model_name)
                 if ACTIVE_WORKING_MODEL == model_name:
                     ACTIVE_WORKING_MODEL = None
                 continue
             else:
                 continue
-
-    return {
-        "status": "error",
-        "reply": "Désolé, aucun modèle d'IA n'est actuellement accessible avec cette clé API.",
-    }
+    
+    raise Exception("Aucun modèle d'IA n'est actuellement accessible avec cette clé API.")
 
 
-# Routes Cal.com inchangées
+# 4. Routes de l'API
+@app.post("/v1/chat")
+async def chat_with_therapelio(chat: ChatMessage):
+    if not GEMINI_API_KEY:
+        return {"status": "error", "reply": "L'IA est déconnectée (clé API manquante)."}
+    if not chat.message.strip():
+        return {"status": "error", "reply": "Le message ne peut pas être vide."}
+
+    # Sécurité critique Niveau 4
+    mots_cles_urgence = ["suicide", "en finir", "mourir", "plus envie de vivre", "tout stopper"]
+    if any(mot in chat.message.lower() for mot in mots_cles_urgence):
+        return {
+            "status": "success",
+            "reply": "Ce que tu me dis m'inquiète beaucoup. Je ne peux pas t'accompagner seul(e) sur ça, il faut qu'on te mette en lien avec quelqu'un maintenant. Voici le 3114, le numéro national de prévention du suicide, gratuit et disponible 24h/24.",
+            "security": "urgence_vitale_detectee"
+        }
+
+    parcours_actif = "A"
+    texte_module = MODULES_PARCOURS.get(parcours_actif, MODULES_PARCOURS["A"])
+    final_system_instruction = f"{THERAPELIO_SYSTEM_INSTRUCTION}\n\n[INSTRUCTIONS SPÉCIFIQUES]\n{texte_module}"
+
+    full_history = FEW_SHOT_EXAMPLES.copy()
+    for msg in chat.history:
+        full_history.append({"role": msg.get("role"), "parts": [msg.get("content")]})
+
+    try:
+        reponse_texte, model_used = generate_with_auto_healing(chat.message, full_history, final_system_instruction)
+        return {
+            "status": "success",
+            "reply": reponse_texte,
+            "security": "auto_healing_verified",
+            "model_used": model_used
+        }
+    except Exception as e:
+        return {"status": "error", "reply": f"Erreur API Gemini : {str(e)}"}
+
+
+# Routes Cal.com
 @app.get("/v1/therapists/slots/{event_type_id}")
 async def get_slots(event_type_id: int):
     if not CALCOM_API_KEY:
         raise HTTPException(status_code=500, detail="Clé Cal.com manquante.")
-
     now = datetime.now(timezone.utc)
     end_time = now + timedelta(hours=72)
     headers = {"Authorization": f"Bearer {CALCOM_API_KEY}"}
@@ -173,50 +168,40 @@ async def get_slots(event_type_id: int):
         "startTime": now.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
         "endTime": end_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
     }
-
-    response = requests.get(
-        f"{CALCOM_BASE_URL}/slots/available", headers=headers, params=params
-    )
+    response = requests.get(f"{CALCOM_BASE_URL}/slots/available", headers=headers, params=params)
     if not response.ok:
-        raise HTTPException(
-            status_code=response.status_code, detail=response.text
-        )
+        raise HTTPException(status_code=response.status_code, detail=response.text)
     return response.json()
-
-
 @app.post("/v1/bookings/create")
 async def create_booking(booking: BookingRequest):
     if not CALCOM_API_KEY:
         raise HTTPException(status_code=500, detail="Clé Cal.com manquante.")
+    
     headers = {
         "Authorization": f"Bearer {CALCOM_API_KEY}",
         "Content-Type": "application/json",
+        "cal-api-version": "2024-08-13" 
     }
+    
+    # Structure corrigée : 'attendee' au singulier (sans les crochets du tableau)
     payload = {
         "start": booking.start,
         "eventTypeId": booking.eventTypeId,
-        "attendees": [
-            {
-                "name": booking.name,
-                "email": booking.email,
-                "timeZone": "Europe/Paris",
-                "language": "fr",
-            }
-        ],
-        "timeZone": "Europe/Paris",
-        "language": "fr",
+        "attendee": {
+            "name": booking.name,
+            "email": booking.email,
+            "timeZone": "Europe/Paris",
+            "language": "fr"
+        }
     }
-    response = requests.post(
-        f"{CALCOM_BASE_URL}/bookings", headers=headers, json=payload
-    )
+    
+    response = requests.post("https://api.cal.com/v2/bookings", headers=headers, json=payload)
+    
     if not response.ok:
-        raise HTTPException(
-            status_code=response.status_code, detail=response.text
-        )
+        print("Erreur Cal.com V2 :", response.text)
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+        
     return response.json()
-
-
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="127.0.0.1", port=8001)
