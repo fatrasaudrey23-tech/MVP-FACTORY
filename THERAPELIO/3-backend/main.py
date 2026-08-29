@@ -56,8 +56,18 @@ class ChatMessage(BaseModel):
     session_id: str = "default_session"
     message: str
     history: list = []
+    user_id: str = ""
+    # Repli si aucun profil enregistré (compatibilité, usage sans inscription)
     prenom: str = ""
     poste: str = ""
+
+class RegisterRequest(BaseModel):
+    registration_code: str
+    prenom: str
+    poste: str = ""
+
+class RecoverRequest(BaseModel):
+    recovery_code: str
 
 class BookingRequest(BaseModel):
     eventTypeId: int
@@ -223,6 +233,25 @@ Ne descends jamais en dessous du niveau {niveau_max_session} sans justification 
 # Filet de sécurité rapide par mots-clés : défense en profondeur, ne dépend pas du LLM.
 MOTS_CLES_URGENCE = ["suicide", "en finir", "mourir", "plus envie de vivre", "tout stopper", "me faire du mal", "me tuer"]
 
+
+@app.post("/v1/auth/register")
+async def register(req: RegisterRequest):
+    if not req.prenom.strip():
+        raise HTTPException(status_code=400, detail="Le prénom est requis.")
+    resultat = db.register_user(req.registration_code, req.prenom, req.poste)
+    if not resultat:
+        raise HTTPException(status_code=404, detail="Code entreprise invalide ou base de données indisponible.")
+    return resultat
+
+
+@app.post("/v1/auth/recover")
+async def recover(req: RecoverRequest):
+    resultat = db.recover_user(req.recovery_code)
+    if not resultat:
+        raise HTTPException(status_code=404, detail="Code de récupération introuvable.")
+    return resultat
+
+
 @app.post("/v1/chat")
 async def chat_with_therapelio(chat: ChatMessage):
     if not GEMINI_API_KEY:
@@ -232,6 +261,13 @@ async def chat_with_therapelio(chat: ChatMessage):
 
     session_id = chat.session_id or "default_session"
     state = get_session_state(session_id)
+
+    # Le profil enregistré en base (via /v1/auth) prime sur les champs libres envoyés
+    # par le client, qui ne servent plus que de repli si l'utilisateur n'a pas de compte.
+    profil = db.get_user(chat.user_id) if chat.user_id else None
+    if profil:
+        chat.prenom = profil["prenom"]
+        chat.poste = profil["poste"]
 
     alerte_mot_cle = any(mot in chat.message.lower() for mot in MOTS_CLES_URGENCE)
     classification = classify_risk(chat.message, chat.history, state["niveau_max"])
