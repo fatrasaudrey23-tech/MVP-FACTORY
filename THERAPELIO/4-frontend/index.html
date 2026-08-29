@@ -46,7 +46,7 @@
             <nav class="mt-6 space-y-2">
                 <button id="nav-conversations" onclick="loadView('conversations')" class="w-full text-left px-4 py-3 rounded-xl bg-thera-confiance text-thera-energie font-semibold shadow-sm transition-all flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                    Mon IA Assistant
+                    Discuter avec Thera
                 </button>
                 <button id="nav-praticiens" onclick="loadView('praticiens')" class="w-full text-left px-4 py-3 rounded-xl text-thera-stabilite/70 hover:bg-thera-confiance font-medium transition-all flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -64,8 +64,14 @@
         </div>
 
         <div class="p-4 mb-4">
-            <button onclick="loadView('urgence')" class="w-full bg-thera-technologie/10 hover:bg-thera-technologie text-thera-technologie hover:text-white border border-thera-technologie/20 px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
-                Appel d'urgence
+            <button onclick="loadView('urgence')" class="w-full bg-white hover:bg-thera-technologie/5 border border-thera-technologie/20 hover:border-thera-technologie/40 px-4 py-3.5 rounded-xl transition-all flex items-center gap-3 text-left group">
+                <div class="w-9 h-9 rounded-full bg-thera-technologie/10 group-hover:bg-thera-technologie/15 flex items-center justify-center shrink-0 transition-colors">
+                    <svg class="w-4 h-4 text-thera-technologie" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="font-bold text-sm text-thera-stabilite">Besoin d'aide maintenant ?</p>
+                    <p class="text-xs text-thera-stabilite/50">3114 · Gratuit, 24h/24</p>
+                </div>
             </button>
         </div>
     </aside>
@@ -79,7 +85,6 @@
                 </button>
                 <h2 id="view-title" class="text-lg sm:text-2xl font-bold font-serif text-thera-stabilite truncate">Espace d'échange</h2>
             </div>
-            <span id="view-badge" class="text-xs font-semibold px-3 py-1 bg-white rounded-full border border-thera-stabilite/10 text-thera-stabilite/70 shrink-0">🟢 En ligne • IA QVT</span>
         </header>
 
         <div class="flex-1 p-3 sm:p-6 md:p-10 overflow-y-auto">
@@ -138,13 +143,87 @@
             }
         }
 
-        window.onload = () => loadView('conversations');
+        window.onload = () => afficherAccueil();
+
+        // ---------------------------------------------------------
+        // ACCUEIL : onboarding (prénom/poste, une seule fois) puis
+        // choix entre discuter avec Thera ou prendre RDV directement.
+        // ---------------------------------------------------------
+
+        function resetNavActive() {
+            ['nav-conversations', 'nav-praticiens', 'nav-ressources', 'nav-bilans'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.className = "w-full text-left px-4 py-3 rounded-xl text-thera-stabilite/70 hover:bg-thera-confiance font-medium transition-all flex items-center gap-3";
+            });
+        }
+
+        function afficherAccueil() {
+            const prenom = localStorage.getItem('therapelio_prenom');
+            if (!prenom) {
+                afficherOnboarding();
+                return;
+            }
+
+            resetNavActive();
+            document.getElementById('view-title').innerText = "Bienvenue";
+            document.getElementById('content-area').innerHTML = `
+                <div class="flex flex-col items-center justify-center flex-1 text-center p-4 sm:p-6">
+                    <h2 class="text-2xl font-bold font-serif text-thera-stabilite mb-2">Bonjour ${echapperHtml(prenom)} 👋</h2>
+                    <p class="text-thera-stabilite/70 mb-10">Comment veux-tu commencer aujourd'hui ?</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full max-w-xl">
+                        <button onclick="loadView('conversations')" class="bg-white border-2 border-thera-stabilite/10 hover:border-thera-energie rounded-2xl p-6 text-left transition-all">
+                            <div class="text-3xl mb-3">💬</div>
+                            <h3 class="font-bold text-lg text-thera-stabilite mb-1">Discuter avec Thera</h3>
+                            <p class="text-sm text-thera-stabilite/60">Un espace pour poser des mots sur ce que tu vis, à ton rythme.</p>
+                        </button>
+                        <button onclick="loadView('praticiens')" class="bg-white border-2 border-thera-stabilite/10 hover:border-thera-energie rounded-2xl p-6 text-left transition-all">
+                            <div class="text-3xl mb-3">📅</div>
+                            <h3 class="font-bold text-lg text-thera-stabilite mb-1">Prendre rendez-vous</h3>
+                            <p class="text-sm text-thera-stabilite/60">Passe directement à un échange avec un professionnel, sous 72h.</p>
+                        </button>
+                    </div>
+                    <button onclick="reinitialiserProfil()" class="text-xs text-thera-stabilite/40 hover:text-thera-stabilite/70 underline mt-8">Ce n'est pas toi ? Modifier</button>
+                </div>`;
+        }
+
+        function afficherOnboarding() {
+            resetNavActive();
+            document.getElementById('view-title').innerText = "Bienvenue";
+            document.getElementById('content-area').innerHTML = `
+                <div class="flex flex-col items-center justify-center flex-1 text-center p-4 sm:p-6">
+                    <div class="w-16 h-16 bg-thera-confiance rounded-full flex items-center justify-center text-3xl mb-5">👋</div>
+                    <h2 class="text-2xl font-bold font-serif text-thera-stabilite mb-2">Bienvenue sur Thérapelio</h2>
+                    <p class="text-thera-stabilite/70 mb-8 max-w-sm">Je suis Thera, ton assistant IA pour ta santé mentale au travail. Avant de commencer, comment puis-je t'appeler ?</p>
+                    <div class="w-full max-w-sm space-y-3">
+                        <input type="text" id="onboarding-prenom" placeholder="Ton prénom" maxlength="40" class="w-full p-3.5 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie" onkeydown="if(event.key==='Enter') terminerOnboarding()">
+                        <input type="text" id="onboarding-poste" placeholder="Ton poste (optionnel)" maxlength="60" class="w-full p-3.5 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie" onkeydown="if(event.key==='Enter') terminerOnboarding()">
+                        <button onclick="terminerOnboarding()" class="w-full bg-thera-energie hover:bg-[#c26224] text-white py-3.5 rounded-xl font-semibold shadow-md transition-all">Continuer</button>
+                    </div>
+                    <p class="text-xs text-thera-stabilite/40 mt-5 max-w-sm">Ces informations restent sur cet appareil et servent uniquement à personnaliser tes échanges avec Thera.</p>
+                </div>`;
+            document.getElementById('onboarding-prenom').focus();
+        }
+
+        function terminerOnboarding() {
+            const prenomInput = document.getElementById('onboarding-prenom');
+            const prenom = prenomInput.value.trim();
+            if (!prenom) { prenomInput.focus(); return; }
+            const poste = document.getElementById('onboarding-poste').value.trim();
+            localStorage.setItem('therapelio_prenom', prenom);
+            localStorage.setItem('therapelio_poste', poste);
+            afficherAccueil();
+        }
+
+        function reinitialiserProfil() {
+            localStorage.removeItem('therapelio_prenom');
+            localStorage.removeItem('therapelio_poste');
+            afficherOnboarding();
+        }
 
         function loadView(view) {
             toggleSidebar(true); // referme le menu mobile après un clic de navigation
             const area = document.getElementById('content-area');
             const title = document.getElementById('view-title');
-            const badge = document.getElementById('view-badge');
             const navIds = ['nav-conversations', 'nav-praticiens', 'nav-ressources', 'nav-bilans'];
 
             navIds.forEach(id => {
@@ -158,8 +237,8 @@
             }
 
             if (view === 'conversations') {
-                title.innerText = "Mon IA Assistant";
-                if(badge) badge.style.display = "inline-block";
+                title.innerText = "Thera";
+                const prenom = localStorage.getItem('therapelio_prenom') || '';
                 area.innerHTML = `
                     <div class="flex flex-col h-[calc(100vh-220px)] min-h-[450px]">
                         <div id="chat-history" class="flex-1 overflow-y-auto px-2 py-4 space-y-5 scroll-smooth">
@@ -167,8 +246,8 @@
                                 <div class="flex justify-start items-start gap-3">
                                     <div class="w-9 h-9 rounded-full bg-thera-stabilite text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>
                                     <div class="bg-thera-confiance text-thera-stabilite p-4 rounded-2xl rounded-tl-none shadow-sm text-sm border border-thera-stabilite/5 leading-relaxed">
-                                        <p class="font-bold mb-1">Bonjour 👋</p>
-                                        <p>Je suis l'assistant Thérapelio. En quoi puis-je vous accompagner aujourd'hui ?</p>
+                                        <p class="font-bold mb-1">${prenom ? `Bonjour ${echapperHtml(prenom)} 👋` : 'Bonjour 👋'}</p>
+                                        <p>Je suis Thera, ton assistant IA pour ta santé mentale au travail. En quoi puis-je t'accompagner aujourd'hui ?</p>
                                     </div>
                                 </div>
                                 <span class="text-[10px] text-thera-stabilite/40 pl-12">${formaterHeure()}</span>
@@ -182,7 +261,6 @@
                     </div>`;
             } else if (view === 'praticiens') {
                 title.innerText = "Prendre rendez-vous";
-                if(badge) badge.style.display = "none";
                 area.innerHTML = `
                     <div class="p-2">
                         <p class="text-thera-stabilite/70 mb-8 font-medium">Sélectionnez un praticien pour planifier une consultation confidentielle.</p>
@@ -201,7 +279,6 @@
                     </div>`;
             } else if (view === 'ressources') {
                 title.innerText = "Boîte à outils bien-être";
-                if(badge) badge.style.display = "none";
                 area.innerHTML = `
                     <div class="p-2">
                         <p class="text-thera-stabilite/70 mb-8 font-medium">Des ressources pratiques et rapides pour vous apaiser au quotidien, accessibles en un clic.</p>
@@ -242,17 +319,19 @@
                     </div>`;
             } else if (view === 'bilans') {
                 title.innerText = "Mes Bilans";
-                if(badge) badge.style.display = "none";
                 area.innerHTML = `<div class="p-8 text-center text-thera-stabilite/60"><p class="text-lg font-medium">Suivi de votre état de forme et historiques à venir...</p></div>`;
             } else if (view === 'urgence') {
-                title.innerText = "Urgence & Assistance";
-                if(badge) badge.style.display = "none";
+                title.innerText = "Besoin d'aide maintenant";
                 area.innerHTML = `
                     <div class="p-8 text-center max-w-lg mx-auto my-auto">
-                        <div class="w-16 h-16 bg-thera-technologie/10 text-thera-technologie rounded-full flex items-center justify-center text-3xl mx-auto mb-4 font-bold">!</div>
-                        <h3 class="text-2xl font-bold text-thera-technologie mb-3 font-serif">Vous traversez une crise ?</h3>
-                        <p class="text-thera-stabilite/80 mb-6 leading-relaxed">Si vous ressentez une détresse profonde ou des idées noires, vous n'êtes pas seul. Des professionnels sont disponibles 24h/24 pour vous écouter gratuitement et sans jugement.</p>
-                        <a href="tel:3114" class="inline-block w-full py-4 bg-thera-technologie text-white font-bold text-lg rounded-xl shadow-lg hover:bg-red-600 transition-all">Appeler le 31 14 (Gratuit & Confidentiel)</a>
+                        <div class="w-16 h-16 bg-thera-technologie/10 text-thera-technologie rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-thera-technologie mb-3 font-serif">Tu traverses un moment difficile ?</h3>
+                        <p class="text-thera-stabilite/80 mb-2 leading-relaxed">Le <strong>31 14</strong> est le numéro national de prévention du suicide. C'est gratuit, confidentiel, et des professionnels y répondent 24h/24, 7j/7 — pas un robot, pas ton entreprise.</p>
+                        <p class="text-thera-stabilite/50 text-sm mb-6">En cliquant ci-dessous, ton téléphone composera directement ce numéro.</p>
+                        <a href="tel:3114" class="inline-block w-full py-4 bg-thera-technologie text-white font-bold text-lg rounded-xl shadow-lg hover:bg-red-600 transition-all mb-4">📞 Appeler le 31 14</a>
+                        <button onclick="loadView('conversations')" class="text-thera-stabilite/60 hover:text-thera-stabilite text-sm font-medium underline">Tu préfères d'abord en parler à Thera ?</button>
                     </div>`;
             }
         }
@@ -384,7 +463,13 @@
                 const response = await fetch(`${API_BASE}/v1/chat`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message, session_id: sessionId, history: historiqueEnvoye })
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: sessionId,
+                        history: historiqueEnvoye,
+                        prenom: localStorage.getItem('therapelio_prenom') || '',
+                        poste: localStorage.getItem('therapelio_poste') || ''
+                    })
                 });
                 const result = await response.json();
                 const isError = result.status === "error";

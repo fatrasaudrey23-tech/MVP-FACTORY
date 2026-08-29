@@ -56,6 +56,8 @@ class ChatMessage(BaseModel):
     session_id: str = "default_session"
     message: str
     history: list = []
+    prenom: str = ""
+    poste: str = ""
 
 class BookingRequest(BaseModel):
     eventTypeId: int
@@ -259,7 +261,18 @@ async def chat_with_therapelio(chat: ChatMessage):
         parcours_actif = state["parcours_actif"]
 
     texte_module = MODULES_PARCOURS.get(parcours_actif, MODULES_PARCOURS["A"])
-    final_system_instruction = f"{THERAPELIO_SYSTEM_INSTRUCTION}\n\n[INSTRUCTIONS SPÉCIFIQUES]\n{texte_module}"
+
+    # Contexte de personnalisation (prénom / poste) : tronqué par prudence, ce sont
+    # des champs libres saisis par l'utilisateur et injectés dans le prompt système.
+    prenom = (chat.prenom or "").strip()[:40]
+    poste = (chat.poste or "").strip()[:60]
+    contexte_utilisateur = ""
+    if prenom:
+        contexte_utilisateur = f"\n\n[CONTEXTE UTILISATEUR]\nPrénom : {prenom}."
+        if poste:
+            contexte_utilisateur += f"\nPoste : {poste}."
+
+    final_system_instruction = f"{THERAPELIO_SYSTEM_INSTRUCTION}\n\n[INSTRUCTIONS SPÉCIFIQUES]\n{texte_module}{contexte_utilisateur}"
 
     full_history = FEW_SHOT_EXAMPLES.copy()
     for msg in chat.history:
