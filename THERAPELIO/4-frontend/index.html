@@ -80,11 +80,26 @@
     </main>
 
     <script>
-        // Le double slash "//" désactive la ligne. 
+        // Le double slash "//" désactive la ligne.
         // Quand Brenda mettra le serveur à jour, il suffira d'inverser les commentaires.
         // const API_BASE = "https://therapelio-api.onrender.com"; // Serveur de Production
-       const API_BASE = "https://therapelio-api.onrender.com"; // Serveur de Production
-// const API_BASE = "http://127.0.0.1:8001"; // Serveur Local (Test)
+// const API_BASE = "https://therapelio-api.onrender.com"; // Serveur de Production (down pour le moment)
+       const API_BASE = "http://127.0.0.1:8001"; // Serveur Local (Test)
+
+        // Mémoire de conversation : générée à chaque chargement de page,
+        // envoyée avec chaque message pour que l'IA garde le fil de l'échange.
+        // (on évite crypto.randomUUID() : indisponible quand la page est ouverte en file://,
+        // car ce n'est alors pas considéré comme un "contexte sécurisé" par le navigateur)
+        function genererSessionId() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+        const sessionId = genererSessionId();
+        let historique = [];
+
         window.onload = () => loadView('conversations');
 
         function loadView(view) {
@@ -293,12 +308,25 @@
                 </div>`;
             input.value = '';
             history.scrollTop = history.scrollHeight;
-            
+
+            // On envoie l'historique précédent (sans le message courant) : le backend l'utilise
+            // comme contexte de conversation et attend le nouveau message séparément.
+            const historiqueEnvoye = [...historique];
+            historique.push({ role: 'user', content: message });
+
             try {
-                const response = await fetch(`${API_BASE}/v1/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: message }) });
+                const response = await fetch(`${API_BASE}/v1/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, session_id: sessionId, history: historiqueEnvoye })
+                });
                 const result = await response.json();
                 const isError = result.status === "error";
-                
+
+                if (!isError) {
+                    historique.push({ role: 'assistant', content: result.reply });
+                }
+
                 history.innerHTML += `
                     <div class="flex justify-start items-start gap-3">
                         <div class="w-9 h-9 rounded-full ${isError ? 'bg-thera-technologie' : 'bg-thera-stabilite'} text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">T</div>

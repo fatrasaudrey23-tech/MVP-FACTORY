@@ -1,11 +1,22 @@
+import json
 import os
+import re
+from contextlib import asynccontextmanager
+
 import requests
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
-from prompts import FEW_SHOT_EXAMPLES, THERAPELIO_SYSTEM_INSTRUCTION, MODULES_PARCOURS
+
+import db
+from prompts import (
+    FEW_SHOT_EXAMPLES,
+    THERAPELIO_SYSTEM_INSTRUCTION,
+    MODULES_PARCOURS,
+    RISK_CLASSIFICATION_INSTRUCTION,
+)
 from pydantic import BaseModel
 
 # 1. Chargement des variables d'environnement
@@ -21,9 +32,16 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 # 2. Initialisation de l'App FastAPI
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    db.init_db()
+    yield
+
+
 app = FastAPI(
     title="Therapelio API",
     description="Backend IA QVT - Moteur Auto-Réparateur Restauré",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -50,6 +68,23 @@ class BookingRequest(BaseModel):
 ACTIVE_WORKING_MODEL = None
 MODEL_BLACKLIST = set()
 
+# État de risque par conversation (en mémoire : suffisant pour le MVP,
+# se réinitialise si le serveur redémarre ou tourne sur plusieurs instances).
+SESSION_STATE: dict = {}
+
+def get_session_state(session_id: str) -> dict:
+    if session_id not in SESSION_STATE:
+        SESSION_STATE[session_id] = {"niveau_max": 1, "parcours_actif": None}
+    return SESSION_STATE[session_id]
+
+MODELE_EXCLUS_MOTS_CLES = ("tts", "image", "embedding", "vision", "aqa")
+
+# Timeout appliqué à chaque appel Gemini : sans ça, un modèle en quota dépassé ou
+# surchargé peut faire "traîner" la requête pendant plusieurs minutes (le SDK retente
+# en interne) avant de remonter l'erreur, ce qui bloque l'utilisateur en silence.
+GEMINI_TIMEOUT_CHAT = {"timeout": 25}
+GEMINI_TIMEOUT_CLASSIFICATION = {"timeout": 15}
+
 def get_candidate_models():
     """Récupère et trie les modèles disponibles en excluant la blacklist."""
     try:
@@ -58,6 +93,7 @@ def get_candidate_models():
             for m in genai.list_models()
             if "generateContent" in m.supported_generation_methods
             and m.name not in MODEL_BLACKLIST
+            and not any(mot in m.name.lower() for mot in MODELE_EXCLUS_MOTS_CLES)
         ]
         flash_models = [m for m in models if "flash" in m.lower()]
         other_models = [m for m in models if "flash" not in m.lower()]
@@ -70,12 +106,8 @@ def get_candidate_models():
             "gemini-1.0-pro",
         ]
 
-def generate_with_auto_healing(message: str, history: list, system_instruction: str):
-    global ACTIVE_WORKING_MODEL, MODEL_BLACKLIST
-    
-    candidates = [ACTIVE_WORKING_MODEL] if ACTIVE_WORKING_MODEL else get_candidate_models()
-    
-    # Correction stricte du format d'historique pour éviter l'erreur de dictionnaire
+def _format_history(history: list) -> list:
+    """Correction stricte du format d'historique pour éviter l'erreur de dictionnaire."""
     formatted_history = []
     for h in history:
         role = h.get("role", "user")
@@ -85,40 +117,110 @@ def generate_with_auto_healing(message: str, history: list, system_instruction: 
         if isinstance(parts, str):
             parts = [parts]
         formatted_history.append({"role": role, "parts": parts})
+    return formatted_history
+
+
+def _run_with_auto_healing(call_fn):
+    """Essaie chaque modèle candidat jusqu'à ce que call_fn(model_name) réussisse."""
+    global ACTIVE_WORKING_MODEL, MODEL_BLACKLIST
+
+    candidates = [ACTIVE_WORKING_MODEL] if ACTIVE_WORKING_MODEL else get_candidate_models()
 
     for model_name in candidates:
         try:
-            model = genai.GenerativeModel(
-                model_name=model_name,
-                system_instruction=system_instruction,
-            )
-            chat_session = model.start_chat(history=formatted_history)
-            response = chat_session.send_message(message)
+            result = call_fn(model_name)
 
             # Verrouillage du premier modèle qui répond sans erreur 404
             if not ACTIVE_WORKING_MODEL:
                 ACTIVE_WORKING_MODEL = model_name
                 print(f"✅ SUCCÈS ! Modèle verrouillé : {ACTIVE_WORKING_MODEL}")
 
-            return response.text, model_name
+            return result, model_name
 
         except Exception as e:
             error_str = str(e)
             print(f"⚠️ Échec sur {model_name}...")
-            
+
             # Mise en liste noire des modèles inaccessibles ou restreints
             if "404" in error_str or "not found" in error_str.lower() or "no longer available" in error_str.lower():
                 MODEL_BLACKLIST.add(model_name)
                 if ACTIVE_WORKING_MODEL == model_name:
                     ACTIVE_WORKING_MODEL = None
-                continue
-            else:
-                continue
-    
+            continue
+
     raise Exception("Aucun modèle d'IA n'est actuellement accessible avec cette clé API.")
 
 
+def generate_with_auto_healing(message: str, history: list, system_instruction: str):
+    formatted_history = _format_history(history)
+
+    def call(model_name):
+        model = genai.GenerativeModel(model_name=model_name, system_instruction=system_instruction)
+        chat_session = model.start_chat(history=formatted_history)
+        return chat_session.send_message(message, request_options=GEMINI_TIMEOUT_CHAT).text
+
+    return _run_with_auto_healing(call)
+
+
+def generate_oneshot_with_auto_healing(prompt: str, system_instruction: str):
+    def call(model_name):
+        model = genai.GenerativeModel(model_name=model_name, system_instruction=system_instruction)
+        return model.generate_content(prompt, request_options=GEMINI_TIMEOUT_CLASSIFICATION).text
+
+    return _run_with_auto_healing(call)
+
+
+def classify_risk(message: str, history: list, niveau_max_session: int) -> dict:
+    """
+    Passe 1 : classification du risque et du parcours probable.
+    Appel LLM séparé, sans état, avec repli sûr si le LLM ou le parsing échoue.
+    """
+    historique_resume = "\n".join(
+        f"{h.get('role', 'user')}: {h.get('content', h.get('parts', ''))}" for h in history[-6:]
+    )
+    prompt = f"""Historique récent :
+{historique_resume or '(aucun)'}
+
+Dernier message de l'utilisateur : {message}
+
+Niveau de risque maximum déjà atteint dans cette conversation : {niveau_max_session}
+
+Réponds UNIQUEMENT avec un objet JSON strict, au format exact :
+{{"niveau": <entier 1 à 4>, "categories_detectees": [<liste de chaînes>], "parcours_probable": "<une lettre parmi A,B,C,D,E,F,G,H>", "confiance": <0 à 1>, "justification_courte": "<une phrase>"}}
+
+Barème :
+1 = échange standard, pas de signal de détresse particulier
+2 = signal de mal-être modéré
+3 = détresse aiguë nécessitant une orientation rapide vers un professionnel
+4 = urgence vitale (idées suicidaires explicites, danger immédiat pour soi ou autrui)
+
+Ne descends jamais en dessous du niveau {niveau_max_session} sans justification majeure explicite dans le dernier message.
+"""
+    try:
+        raw_text, _ = generate_oneshot_with_auto_healing(prompt, RISK_CLASSIFICATION_INSTRUCTION)
+        match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+        data = json.loads(match.group(0) if match else raw_text)
+
+        niveau = max(1, min(4, int(data.get("niveau", 1))))
+        parcours = str(data.get("parcours_probable", "A")).strip().upper()
+        if parcours not in MODULES_PARCOURS:
+            parcours = "A"
+
+        return {
+            "niveau": niveau,
+            "categories_detectees": data.get("categories_detectees", []),
+            "parcours_probable": parcours,
+        }
+    except Exception as e:
+        print(f"⚠️ Classification de risque indisponible ({e}), repli sur niveau 1 / parcours A.")
+        return {"niveau": 1, "categories_detectees": [], "parcours_probable": "A"}
+
+
 # 4. Routes de l'API
+
+# Filet de sécurité rapide par mots-clés : défense en profondeur, ne dépend pas du LLM.
+MOTS_CLES_URGENCE = ["suicide", "en finir", "mourir", "plus envie de vivre", "tout stopper", "me faire du mal", "me tuer"]
+
 @app.post("/v1/chat")
 async def chat_with_therapelio(chat: ChatMessage):
     if not GEMINI_API_KEY:
@@ -126,16 +228,36 @@ async def chat_with_therapelio(chat: ChatMessage):
     if not chat.message.strip():
         return {"status": "error", "reply": "Le message ne peut pas être vide."}
 
-    # Sécurité critique Niveau 4
-    mots_cles_urgence = ["suicide", "en finir", "mourir", "plus envie de vivre", "tout stopper"]
-    if any(mot in chat.message.lower() for mot in mots_cles_urgence):
+    session_id = chat.session_id or "default_session"
+    state = get_session_state(session_id)
+
+    alerte_mot_cle = any(mot in chat.message.lower() for mot in MOTS_CLES_URGENCE)
+    classification = classify_risk(chat.message, chat.history, state["niveau_max"])
+
+    niveau = max(classification["niveau"], state["niveau_max"], 4 if alerte_mot_cle else 0)
+    state["niveau_max"] = niveau
+
+    # Niveau 4 : urgence vitale, on court-circuite la génération conversationnelle.
+    if niveau == 4:
+        db.log_crisis_event(session_id, 4, classification["categories_detectees"], "urgence_vitale_hotline_affichee")
         return {
             "status": "success",
             "reply": "Ce que tu me dis m'inquiète beaucoup. Je ne peux pas t'accompagner seul(e) sur ça, il faut qu'on te mette en lien avec quelqu'un maintenant. Voici le 3114, le numéro national de prévention du suicide, gratuit et disponible 24h/24.",
-            "security": "urgence_vitale_detectee"
+            "security": "urgence_vitale_detectee",
+            "niveau_risque": 4,
         }
 
-    parcours_actif = "A"
+    # Niveau 3 : détresse aiguë, on force le parcours F (orientation prioritaire) et on journalise.
+    if niveau == 3:
+        parcours_actif = "F"
+        db.log_crisis_event(session_id, 3, classification["categories_detectees"], "orientation_prioritaire_proposee")
+    else:
+        # Le parcours se fixe au premier échange puis reste stable sur la session
+        # (le motif initial ne doit pas changer de catégorie à chaque message).
+        if not state["parcours_actif"]:
+            state["parcours_actif"] = classification["parcours_probable"]
+        parcours_actif = state["parcours_actif"]
+
     texte_module = MODULES_PARCOURS.get(parcours_actif, MODULES_PARCOURS["A"])
     final_system_instruction = f"{THERAPELIO_SYSTEM_INSTRUCTION}\n\n[INSTRUCTIONS SPÉCIFIQUES]\n{texte_module}"
 
@@ -149,7 +271,9 @@ async def chat_with_therapelio(chat: ChatMessage):
             "status": "success",
             "reply": reponse_texte,
             "security": "auto_healing_verified",
-            "model_used": model_used
+            "model_used": model_used,
+            "niveau_risque": niveau,
+            "parcours_actif": parcours_actif,
         }
     except Exception as e:
         return {"status": "error", "reply": f"Erreur API Gemini : {str(e)}"}
