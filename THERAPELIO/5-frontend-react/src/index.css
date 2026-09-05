@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Rethink Sans", sans-serif;
+  --font-serif: "Fraunces", serif;
+
+  --color-thera-energie: #d2702e;
+  --color-thera-stabilite: #283252;
+  --color-thera-confiance: #f8f4e6;
+  --color-thera-optimisme: #f5d410;
+  --color-thera-technologie: #f23457;
+  --color-thera-reflexion: #323d8b;
+  --color-thera-chaleur: #e4a740;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}

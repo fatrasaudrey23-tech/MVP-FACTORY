@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "therapelio-react",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd '/Users/audreyfatras/Desktop/MVP factory /THERAPELIO/5-frontend-react' && npm run dev -- --port \"$PORT\" --host 127.0.0.1"
+      ],
+      "autoPort": true
+    },
+    {
+      "name": "ecomenu-frontend",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "export NVM_DIR=\"$HOME/.nvm\"; [ -s \"$NVM_DIR/nvm.sh\" ] && \\. \"$NVM_DIR/nvm.sh\"; cd '/Users/audreyfatras/Desktop/MVP factory /ECOMENU/frontend' && npm run dev -- --port \"$PORT\" --host 127.0.0.1"
+      ],
+      "autoPort": true
+    }
+  ]
+}
