@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
 export default function GuideSteps({ title, description, steps, onFinish }) {
@@ -8,9 +9,22 @@ export default function GuideSteps({ title, description, steps, onFinish }) {
     <div>
       <h3 className="text-2xl font-bold font-serif text-thera-stabilite mb-1">{title}</h3>
       <p className="text-thera-stabilite/60 text-xs mb-6">{description}</p>
-      <div className="bg-thera-confiance/40 rounded-2xl p-6 mb-6 min-h-[120px] flex items-center justify-center text-center">
-        <p className="text-thera-stabilite font-medium leading-relaxed">{steps[index]}</p>
+
+      <div className="relative bg-thera-confiance/40 rounded-2xl p-6 mb-6 min-h-[120px] flex items-center justify-center text-center overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={index}
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="text-thera-stabilite font-medium leading-relaxed"
+          >
+            {steps[index]}
+          </motion.p>
+        </AnimatePresence>
       </div>
+
       <div className="flex items-center justify-between gap-3">
         <button
           onClick={() => setIndex((i) => Math.max(0, i - 1))}
@@ -21,23 +35,31 @@ export default function GuideSteps({ title, description, steps, onFinish }) {
         </button>
         <div className="flex gap-1.5">
           {steps.map((_, i) => (
-            <span key={i} className={`w-2 h-2 rounded-full ${i === index ? "bg-thera-energie" : "bg-thera-stabilite/15"}`} />
+            <motion.span
+              key={i}
+              animate={{ width: i === index ? 18 : 8, backgroundColor: i === index ? "var(--color-thera-energie)" : "var(--color-thera-stabilite)" }}
+              transition={{ duration: 0.2 }}
+              className="h-2 rounded-full"
+              style={{ opacity: i === index ? 1 : 0.15 }}
+            />
           ))}
         </div>
         {isLast ? (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={onFinish}
-            className="bg-thera-stabilite hover:bg-thera-reflexion text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all"
+            className="bg-thera-stabilite hover:bg-thera-reflexion text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors"
           >
             Terminer
-          </button>
+          </motion.button>
         ) : (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={() => setIndex((i) => Math.min(steps.length - 1, i + 1))}
-            className="bg-thera-energie hover:bg-[#c26224] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all"
+            className="bg-thera-energie hover:bg-[#c26224] text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors"
           >
             Suivant →
-          </button>
+          </motion.button>
         )}
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import BreathingExercise from "../components/BreathingExercise";
 import GuideSteps from "../components/GuideSteps";
@@ -46,58 +47,68 @@ export default function Ressources() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {CARDS.map((card) => (
-          <div
+        {CARDS.map((card, i) => (
+          <motion.div
             key={card.id}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.06, ease: "easeOut" }}
+            whileHover={{ y: -4 }}
             onClick={() => setOpenId(card.id)}
-            className="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:border-thera-energie/30 transition-all group cursor-pointer"
+            className="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:shadow-thera-stabilite/5 hover:border-thera-energie/30 transition-shadow group cursor-pointer"
           >
-            <div className="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+            <motion.div
+              whileHover={{ scale: 1.12, rotate: 4 }}
+              transition={{ type: "spring", stiffness: 300, damping: 12 }}
+              className="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4"
+            >
               {card.icon}
-            </div>
+            </motion.div>
             <h3 className="font-bold text-lg text-thera-stabilite mb-2">{card.title}</h3>
             <p className="text-thera-stabilite/70 text-sm mb-4">{card.desc}</p>
-            <span className="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+            <span className="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
               {card.cta} <ArrowIcon />
             </span>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      {openId && (
-        <ResourceModal onClose={() => setOpenId(null)}>
-          {openId === "coherence" && <BreathingExercise />}
-          {openId === "meditation" && (
-            <GuideSteps
-              title="Méditation express"
-              description="Guide pas-à-pas, prends le temps qu'il te faut à chaque étape."
-              steps={MEDITATION_STEPS}
-              onFinish={() => setOpenId(null)}
-            />
-          )}
-          {openId === "etirements" && (
-            <GuideSteps
-              title="Étirements au bureau"
-              description="Fais chaque mouvement en douceur, sans forcer."
-              steps={ETIREMENTS_STEPS}
-              onFinish={() => setOpenId(null)}
-            />
-          )}
-          {openId === "defusion" && (
-            <div>
-              <h3 className="text-2xl font-bold font-serif text-thera-stabilite mb-4">Défusion cognitive</h3>
-              <div className="text-sm text-thera-stabilite/80 space-y-4 leading-relaxed">
-                {DEFUSION_ARTICLE.map((p, i) => (
-                  <p key={i} className={p.muted ? "text-thera-stabilite/60 text-xs pt-2" : ""}>
-                    {p.lead && <strong className="text-thera-stabilite">{p.lead}</strong>}
-                    {p.text}
-                  </p>
-                ))}
+      <AnimatePresence>
+        {openId && (
+          <ResourceModal onClose={() => setOpenId(null)}>
+            {openId === "coherence" && <BreathingExercise />}
+            {openId === "meditation" && (
+              <GuideSteps
+                title="Méditation express"
+                description="Guide pas-à-pas, prends le temps qu'il te faut à chaque étape."
+                steps={MEDITATION_STEPS}
+                onFinish={() => setOpenId(null)}
+              />
+            )}
+            {openId === "etirements" && (
+              <GuideSteps
+                title="Étirements au bureau"
+                description="Fais chaque mouvement en douceur, sans forcer."
+                steps={ETIREMENTS_STEPS}
+                onFinish={() => setOpenId(null)}
+              />
+            )}
+            {openId === "defusion" && (
+              <div>
+                <h3 className="text-2xl font-bold font-serif text-thera-stabilite mb-4">Défusion cognitive</h3>
+                <div className="text-sm text-thera-stabilite/80 space-y-4 leading-relaxed">
+                  {DEFUSION_ARTICLE.map((p, i) => (
+                    <p key={i} className={p.muted ? "text-thera-stabilite/60 text-xs pt-2" : ""}>
+                      {p.lead && <strong className="text-thera-stabilite">{p.lead}</strong>}
+                      {p.text}
+                    </p>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </ResourceModal>
-      )}
+            )}
+          </ResourceModal>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

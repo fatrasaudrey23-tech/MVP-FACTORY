@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -39,18 +40,30 @@ export default function Recover() {
           onChange={(e) => setCode(e.target.value)}
           placeholder="Code personnel"
           maxLength={10}
-          className="w-full p-3.5 rounded-xl border border-thera-stabilite/10 text-sm text-center font-mono tracking-widest uppercase focus:outline-none focus:border-thera-energie"
+          className="w-full p-3.5 rounded-xl border border-thera-stabilite/10 text-sm text-center font-mono tracking-widest uppercase focus:outline-none focus:border-thera-energie focus:ring-4 focus:ring-thera-energie/10 transition-all"
         />
-        <button
+        <motion.button
+          whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={loading}
-          className="w-full bg-thera-energie hover:bg-[#c26224] text-white py-3.5 rounded-xl font-semibold shadow-md transition-all disabled:opacity-50"
+          className="w-full bg-thera-energie hover:bg-[#c26224] text-white py-3.5 rounded-xl font-semibold shadow-md transition-colors disabled:opacity-50"
         >
           {loading ? "Un instant..." : "Retrouver mon profil"}
-        </button>
+        </motion.button>
       </form>
 
-      {error && <p className="text-xs text-thera-technologie mt-3">{error}</p>}
+      <AnimatePresence>
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="text-xs text-thera-technologie mt-3"
+          >
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
 
       <Link to="/inscription" className="text-xs text-thera-stabilite/50 hover:text-thera-stabilite underline mt-6">
         Je n'ai pas encore de profil

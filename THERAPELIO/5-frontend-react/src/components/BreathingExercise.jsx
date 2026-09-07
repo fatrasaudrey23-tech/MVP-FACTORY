@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 export default function BreathingExercise() {
@@ -42,8 +43,8 @@ export default function BreathingExercise() {
     setPhase("ready");
   }
 
-  const scaleClass = phase === "inspire" ? "scale-[1.6]" : "scale-100";
-  const durationClass = phase === "inspire" ? "duration-[4000ms]" : phase === "expire" ? "duration-[6000ms]" : "duration-[600ms]";
+  const scale = phase === "inspire" ? 1.6 : 1;
+  const duration = phase === "inspire" ? 4 : phase === "expire" ? 6 : 0.6;
   const label = phase === "ready" ? "Prêt ?" : phase === "inspire" ? "Inspire..." : "Expire...";
 
   return (
@@ -53,19 +54,29 @@ export default function BreathingExercise() {
         Suis le cercle : inspire quand il grandit, expire quand il rétrécit. Arrête quand tu veux.
       </p>
       <div className="flex items-center justify-center h-56 mb-6">
-        <div
-          className={`w-28 h-28 rounded-full bg-thera-energie/20 border-4 border-thera-energie flex items-center justify-center transition-transform ease-in-out ${durationClass} ${scaleClass}`}
-        >
-          <span className="font-bold text-thera-energie text-sm">{label}</span>
+        <div className="relative flex items-center justify-center">
+          <motion.div
+            animate={{ scale: running ? [1, 1.3, 1] : 1, opacity: running ? [0.15, 0.35, 0.15] : 0.15 }}
+            transition={{ duration: 10, repeat: running ? Infinity : 0, ease: "easeInOut" }}
+            className="absolute w-32 h-32 rounded-full bg-thera-energie blur-xl"
+          />
+          <motion.div
+            animate={{ scale }}
+            transition={{ duration, ease: "easeInOut" }}
+            className="relative w-28 h-28 rounded-full bg-thera-energie/20 border-4 border-thera-energie flex items-center justify-center"
+          >
+            <span className="font-bold text-thera-energie text-sm">{label}</span>
+          </motion.div>
         </div>
       </div>
       <p className="text-xs text-thera-stabilite/50 mb-4">{cycles} cycle(s) effectué(s)</p>
-      <button
+      <motion.button
+        whileTap={{ scale: 0.95 }}
         onClick={running ? stop : start}
-        className="bg-thera-energie hover:bg-[#c26224] text-white px-6 py-3 rounded-xl font-semibold transition-all"
+        className="bg-thera-energie hover:bg-[#c26224] text-white px-6 py-3 rounded-xl font-semibold transition-colors"
       >
         {running ? "Arrêter" : "Commencer"}
-      </button>
+      </motion.button>
     </div>
   );
 }

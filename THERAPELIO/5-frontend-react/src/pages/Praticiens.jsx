@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { createBooking, fetchSlots } from "../api/client";
 
@@ -58,7 +59,11 @@ export default function Praticiens() {
   return (
     <div className="p-2">
       <p className="text-thera-stabilite/70 mb-8 font-medium">Sélectionnez un praticien pour planifier une consultation confidentielle.</p>
-      <div className="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm max-w-xl">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm max-w-xl"
+      >
         <div className="flex items-center gap-4 mb-6">
           <div className="w-16 h-16 bg-thera-confiance rounded-full flex items-center justify-center text-3xl border border-thera-stabilite/5">
             👩‍⚕️
@@ -70,12 +75,13 @@ export default function Praticiens() {
         </div>
 
         {step === "idle" && (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.98 }}
             onClick={loadSlots}
-            className="w-full py-3 bg-thera-stabilite hover:bg-thera-reflexion text-white rounded-xl font-semibold transition-all shadow-sm"
+            className="w-full py-3 bg-thera-stabilite hover:bg-thera-reflexion text-white rounded-xl font-semibold transition-colors shadow-sm"
           >
             Voir les disponibilités (72h)
-          </button>
+          </motion.button>
         )}
 
         {step === "loading" && (
@@ -88,79 +94,103 @@ export default function Praticiens() {
           ) : (
             <div className="grid grid-cols-2 gap-2 mt-3 max-h-60 overflow-y-auto p-1">
               {dates.flatMap((date) =>
-                slotsByDate[date].map((slot) => {
+                slotsByDate[date].map((slot, i) => {
                   const time = new Date(slot.time).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
                   const day = new Date(slot.time).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric" });
                   return (
-                    <button
+                    <motion.button
                       key={slot.time}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(i * 0.03, 0.4) }}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
                       onClick={() => pickSlot(slot.time)}
-                      className="py-2.5 px-3 bg-thera-confiance border border-thera-stabilite/10 rounded-xl hover:border-thera-energie hover:bg-white transition text-xs font-bold text-thera-stabilite flex items-center justify-between"
+                      className="py-2.5 px-3 bg-thera-confiance border border-thera-stabilite/10 rounded-xl hover:border-thera-energie hover:bg-white transition-colors text-xs font-bold text-thera-stabilite flex items-center justify-between"
                     >
                       <span>{day}</span> <span className="text-thera-energie font-extrabold">{time}</span>
-                    </button>
+                    </motion.button>
                   );
                 })
               )}
             </div>
           ))}
 
-        {(step === "confirm" || step === "booking") && selectedSlot && (
-          <div className="mt-4 p-5 bg-thera-confiance/30 border border-thera-stabilite/10 rounded-xl shadow-inner">
-            <p className="font-bold text-thera-stabilite mb-1">Confirmer la réservation</p>
-            <p className="text-sm text-thera-energie font-semibold mb-4">
-              📅{" "}
-              {new Date(selectedSlot).toLocaleString("fr-FR", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Votre prénom"
-              className="w-full mb-3 p-3 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie"
-            />
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              placeholder="Votre e-mail professionnel"
-              className="w-full mb-4 p-3 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie"
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={confirmBooking}
-                disabled={step === "booking"}
-                className="flex-1 bg-thera-stabilite hover:bg-thera-reflexion text-white py-3 rounded-xl font-bold text-sm transition-all shadow-sm disabled:opacity-60"
-              >
-                {step === "booking" ? "Réservation en cours..." : "Valider le RDV"}
-              </button>
-              <button
-                onClick={loadSlots}
-                className="flex-1 bg-white border border-thera-stabilite/10 hover:bg-gray-50 text-thera-stabilite py-3 rounded-xl font-bold text-sm transition-all"
-              >
-                Annuler
-              </button>
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {(step === "confirm" || step === "booking") && selectedSlot && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4 p-5 bg-thera-confiance/30 border border-thera-stabilite/10 rounded-xl shadow-inner overflow-hidden"
+            >
+              <p className="font-bold text-thera-stabilite mb-1">Confirmer la réservation</p>
+              <p className="text-sm text-thera-energie font-semibold mb-4">
+                📅{" "}
+                {new Date(selectedSlot).toLocaleString("fr-FR", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Votre prénom"
+                className="w-full mb-3 p-3 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie"
+              />
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                placeholder="Votre e-mail professionnel"
+                className="w-full mb-4 p-3 rounded-xl border border-thera-stabilite/10 text-sm focus:outline-none focus:border-thera-energie"
+              />
+              <div className="flex gap-2">
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={confirmBooking}
+                  disabled={step === "booking"}
+                  className="flex-1 bg-thera-stabilite hover:bg-thera-reflexion text-white py-3 rounded-xl font-bold text-sm transition-colors shadow-sm disabled:opacity-60"
+                >
+                  {step === "booking" ? "Réservation en cours..." : "Valider le RDV"}
+                </motion.button>
+                <button
+                  onClick={loadSlots}
+                  className="flex-1 bg-white border border-thera-stabilite/10 hover:bg-gray-50 text-thera-stabilite py-3 rounded-xl font-bold text-sm transition-colors"
+                >
+                  Annuler
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {step === "success" && (
-          <div className="mt-4 p-6 bg-green-50 border border-green-200 rounded-xl text-center">
-            <div className="text-3xl mb-2">✅</div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mt-4 p-6 bg-green-50 border border-green-200 rounded-xl text-center"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 12, delay: 0.1 }}
+              className="text-3xl mb-2"
+            >
+              ✅
+            </motion.div>
             <p className="font-bold text-green-800 mb-2">Rendez-vous confirmé pour {name} !</p>
             <p className="text-sm text-green-700">
               Le lien de la visioconférence a été envoyé à <b>{email}</b>.
             </p>
-          </div>
+          </motion.div>
         )}
 
         {step === "error" && <div className="text-red-500 font-bold text-center mt-4">❌ {errorMsg}</div>}
-      </div>
+      </motion.div>
     </div>
   );
 }
