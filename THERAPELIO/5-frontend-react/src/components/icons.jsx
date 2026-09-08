@@ -78,3 +78,116 @@ export function ArrowIcon({ className = "w-4 h-4" }) {
     </svg>
   );
 }
+
+export function LungsIcon({ className = "w-6 h-6" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.75"
+        d="M12 3v8m0 0c0-1.5-1-3-3-3-2.5 0-3 2-3 4v3c0 1.5 1 3 2.5 3S11 17 11 15v-4m1 0c0-1.5 1-3 3-3 2.5 0 3 2 3 4v3c0 1.5-1 3-2.5 3S13 17 13 15v-4M9 6c-1 0-2 .5-2 1.5"
+      />
+    </svg>
+  );
+}
+
+export function HeadphonesIcon({ className = "w-6 h-6" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.75"
+        d="M4 14v-2a8 8 0 0116 0v2M4 14a2 2 0 002 2h1a1 1 0 001-1v-3a1 1 0 00-1-1H5a1 1 0 00-1 1v2zm16 0a2 2 0 01-2 2h-1a1 1 0 01-1-1v-3a1 1 0 011-1h2a1 1 0 011 1v2z"
+      />
+    </svg>
+  );
+}
+
+export function StretchIcon({ className = "w-6 h-6" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <circle cx="12" cy="4.5" r="1.5" strokeWidth="1.75" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M12 8v5m0 0l-4 6m4-6l4 6m-4-6L7 9m5 4l5-5" />
+    </svg>
+  );
+}
+
+export function CompassIcon({ className = "w-6 h-6" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" strokeWidth="1.75" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M14.5 9.5l-1.8 4.7a1 1 0 01-.5.5l-4.7 1.8 1.8-4.7a1 1 0 01.5-.5l4.7-1.8z" />
+    </svg>
+  );
+}
+
+export function ShieldIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.75"
+        d="M12 3l7 3v5c0 4.5-3 7.5-7 10-4-2.5-7-5.5-7-10V6l7-3z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M9.5 12l1.8 1.8 3.2-3.6" />
+    </svg>
+  );
+}
+
+export function ClockIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" strokeWidth="1.75" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M12 7.5V12l3 2" />
+    </svg>
+  );
+}
+
+export function BadgeIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <circle cx="12" cy="9" r="4.5" strokeWidth="1.75" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M9 12.5L7.5 20l4.5-2.2 4.5 2.2-1.5-7.5" />
+    </svg>
+  );
+}
+
+export function KeyIcon({ className = "w-7 h-7" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <circle cx="8" cy="15" r="3.5" strokeWidth="1.75" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M10.5 12.5L18 5m0 0v3m0-3h-3" />
+    </svg>
+  );
+}
+
+export function CheckCircleIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" strokeWidth="1.75" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M8.5 12.3l2.2 2.2 4.8-5" />
+    </svg>
+  );
+}
+
+export function UsersIcon({ className = "w-6 h-6" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <circle cx="9" cy="8" r="3" strokeWidth="1.75" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5M15.5 8.5a2.5 2.5 0 110-5M17 13.5c2 .3 3.5 2 3.5 4" />
+    </svg>
+  );
+}
+
+/** Logomark de Thérapelio simplifié (silhouette rayonnante), réutilisé comme avatar de Thera. */
+export function TheraMark({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" viewBox="0 0 24 24">
+      <circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none" />
+      <path d="M12 8L6.5 3.5M12 8L17.5 3.5M5 11h14M12 8v12M12 15l-5 5M12 15l5 5" />
+    </svg>
+  );
+}

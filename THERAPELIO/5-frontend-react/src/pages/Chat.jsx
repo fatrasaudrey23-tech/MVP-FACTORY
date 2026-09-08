@@ -97,8 +97,7 @@ export default function Chat() {
             className="flex-1 bg-transparent px-3 py-2.5 focus:outline-none text-sm resize-none max-h-36 disabled:opacity-60"
           />
           <motion.button
-            whileHover={{ scale: sending ? 1 : 1.04 }}
-            whileTap={{ scale: sending ? 1 : 0.95 }}
+            whileTap={{ scale: sending ? 1 : 0.97 }}
             onClick={handleSend}
             disabled={sending}
             className="bg-thera-energie text-white px-6 py-3 rounded-xl font-semibold shadow-sm text-sm shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"

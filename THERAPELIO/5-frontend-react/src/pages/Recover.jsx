@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { KeyIcon } from "../components/icons";
 import { useAuth } from "../context/AuthContext";
 
 export default function Recover() {
@@ -28,7 +29,9 @@ export default function Recover() {
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 text-center p-4 sm:p-6">
-      <div className="w-16 h-16 bg-thera-confiance rounded-full flex items-center justify-center text-3xl mb-5">🔑</div>
+      <div className="w-14 h-14 bg-thera-stabilite rounded-2xl flex items-center justify-center text-white mb-5">
+        <KeyIcon className="w-6 h-6" />
+      </div>
       <h2 className="text-2xl font-bold font-serif text-thera-stabilite mb-2">Retrouver mon profil</h2>
       <p className="text-thera-stabilite/70 mb-8 max-w-sm">
         Entre le code personnel que tu as reçu lors de ta première connexion.

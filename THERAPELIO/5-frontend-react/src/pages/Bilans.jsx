@@ -1,16 +1,15 @@
-import { motion } from "framer-motion";
+import { ChartIcon } from "../components/icons";
 
 export default function Bilans() {
   return (
-    <div className="p-8 text-center text-thera-stabilite/60 flex-1 flex flex-col items-center justify-center">
-      <motion.div
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-        className="text-4xl mb-3"
-      >
-        📊
-      </motion.div>
-      <p className="text-lg font-medium">Suivi de votre état de forme et historiques à venir...</p>
+    <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+      <div className="w-14 h-14 bg-thera-confiance rounded-2xl flex items-center justify-center text-thera-stabilite/40 mb-4">
+        <ChartIcon className="w-6 h-6" />
+      </div>
+      <p className="text-thera-stabilite font-semibold mb-1">Bientôt disponible</p>
+      <p className="text-thera-stabilite/50 text-sm max-w-xs">
+        Le suivi de ton état de forme et l'historique de tes échanges arriveront dans une prochaine version.
+      </p>
     </div>
   );
 }

@@ -5,23 +5,10 @@ import { PhoneIcon } from "../components/icons";
 export default function Urgence() {
   return (
     <div className="p-8 text-center max-w-lg mx-auto my-auto">
-      <div className="relative w-16 h-16 mx-auto mb-4">
-        <motion.div
-          animate={{ scale: [1, 1.4, 1], opacity: [0.25, 0, 0.25] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute inset-0 rounded-full bg-thera-technologie"
-        />
-        <div className="relative w-16 h-16 bg-thera-technologie/10 text-thera-technologie rounded-full flex items-center justify-center">
-          <PhoneIcon className="w-7 h-7" />
-        </div>
+      <div className="w-16 h-16 bg-thera-technologie/10 text-thera-technologie rounded-full flex items-center justify-center mx-auto mb-4">
+        <PhoneIcon className="w-7 h-7" />
       </div>
-      <motion.h3
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-2xl font-bold text-thera-technologie mb-3 font-serif"
-      >
-        Tu traverses un moment difficile ?
-      </motion.h3>
+      <h3 className="text-2xl font-bold text-thera-technologie mb-3 font-serif">Tu traverses un moment difficile ?</h3>
       <p className="text-thera-stabilite/80 mb-2 leading-relaxed">
         Le <strong>31 14</strong> est le numéro national de prévention du suicide. C'est gratuit, confidentiel, et des
         professionnels y répondent 24h/24, 7j/7 — pas un robot, pas ton entreprise.
@@ -30,9 +17,9 @@ export default function Urgence() {
       <motion.a
         whileTap={{ scale: 0.98 }}
         href="tel:3114"
-        className="inline-block w-full py-4 bg-thera-technologie text-white font-bold text-lg rounded-xl shadow-lg hover:bg-red-600 transition-colors mb-4"
+        className="inline-block w-full py-4 bg-thera-technologie text-white font-bold text-lg rounded-xl shadow-sm hover:bg-red-600 transition-colors mb-4"
       >
-        📞 Appeler le 31 14
+        Appeler le 31 14
       </motion.a>
       <Link to="/chat" className="text-thera-stabilite/60 hover:text-thera-stabilite text-sm font-medium underline">
         Tu préfères d'abord en parler à Thera ?

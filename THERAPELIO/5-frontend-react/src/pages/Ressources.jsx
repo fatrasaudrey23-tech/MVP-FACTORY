@@ -2,35 +2,35 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import BreathingExercise from "../components/BreathingExercise";
 import GuideSteps from "../components/GuideSteps";
-import { ArrowIcon } from "../components/icons";
+import { ArrowIcon, CompassIcon, HeadphonesIcon, LungsIcon, StretchIcon } from "../components/icons";
 import ResourceModal from "../components/ResourceModal";
 import { DEFUSION_ARTICLE, ETIREMENTS_STEPS, MEDITATION_STEPS } from "../data/guides";
 
 const CARDS = [
   {
     id: "coherence",
-    icon: "🫁",
+    Icon: LungsIcon,
     title: "Cohérence cardiaque",
     desc: "Exercice de respiration guidé pour réduire instantanément le stress et l'anxiété.",
     cta: "Lancer l'exercice",
   },
   {
     id: "meditation",
-    icon: "🎧",
+    Icon: HeadphonesIcon,
     title: "Méditation express",
     desc: "Un guide pas-à-pas de quelques minutes pour se recentrer avant une réunion ou après un coup de stress.",
     cta: "Suivre le guide",
   },
   {
     id: "etirements",
-    icon: "🧘",
+    Icon: StretchIcon,
     title: "Étirements au bureau",
     desc: "Quelques mouvements simples pour relâcher les tensions physiques accumulées devant l'écran.",
     cta: "Voir les postures",
   },
   {
     id: "defusion",
-    icon: "🧭",
+    Icon: CompassIcon,
     title: "Défusion cognitive",
     desc: "Apprenez à prendre de la distance avec vos pensées parasites grâce aux outils de la méthode ACT.",
     cta: "Lire l'article",
@@ -50,20 +50,15 @@ export default function Ressources() {
         {CARDS.map((card, i) => (
           <motion.div
             key={card.id}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.06, ease: "easeOut" }}
-            whileHover={{ y: -4 }}
+            transition={{ duration: 0.25, delay: i * 0.05 }}
             onClick={() => setOpenId(card.id)}
-            className="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:shadow-thera-stabilite/5 hover:border-thera-energie/30 transition-shadow group cursor-pointer"
+            className="bg-white border border-thera-stabilite/10 p-6 rounded-2xl shadow-sm hover:shadow-md hover:border-thera-energie/30 transition-all group cursor-pointer"
           >
-            <motion.div
-              whileHover={{ scale: 1.12, rotate: 4 }}
-              transition={{ type: "spring", stiffness: 300, damping: 12 }}
-              className="w-12 h-12 bg-thera-confiance rounded-xl flex items-center justify-center text-2xl mb-4"
-            >
-              {card.icon}
-            </motion.div>
+            <div className="w-11 h-11 bg-thera-confiance rounded-xl flex items-center justify-center text-thera-energie mb-4">
+              <card.Icon className="w-5 h-5" />
+            </div>
             <h3 className="font-bold text-lg text-thera-stabilite mb-2">{card.title}</h3>
             <p className="text-thera-stabilite/70 text-sm mb-4">{card.desc}</p>
             <span className="text-thera-energie font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
