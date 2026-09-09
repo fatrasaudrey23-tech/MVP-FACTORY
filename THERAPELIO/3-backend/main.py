@@ -86,7 +86,7 @@ SESSION_STATE: dict = {}
 
 def get_session_state(session_id: str) -> dict:
     if session_id not in SESSION_STATE:
-        SESSION_STATE[session_id] = {"niveau_max": 1, "parcours_actif": None}
+        SESSION_STATE[session_id] = {"niveau_max": 1, "parcours_actif": None, "niveau4_count": 0}
     return SESSION_STATE[session_id]
 
 MODELE_EXCLUS_MOTS_CLES = ("tts", "image", "embedding", "vision", "aqa")
@@ -233,6 +233,53 @@ Ne descends jamais en dessous du niveau {niveau_max_session} sans justification 
 # Filet de sécurité rapide par mots-clés : défense en profondeur, ne dépend pas du LLM.
 MOTS_CLES_URGENCE = ["suicide", "en finir", "mourir", "plus envie de vivre", "tout stopper", "me faire du mal", "me tuer"]
 
+# Tournures figurées où ces mots-clés apparaissent sans signal de détresse réel : on les
+# retire du texte avant la recherche, pour éviter qu'un "mourir de rire" déclenche à tort
+# le niveau 4 (et bloque la session en mode crise pour le reste de la conversation).
+EXPRESSIONS_FIGUREES_A_IGNORER = [
+    "mourir de rire", "mort de rire", "mdr", "mourir de faim", "mourir de honte",
+    "mourir d'ennui", "mourir de chaud", "à en mourir de rire",
+]
+
+def contient_signal_urgence(message: str) -> bool:
+    texte = message.lower()
+    for expression in EXPRESSIONS_FIGUREES_A_IGNORER:
+        texte = texte.replace(expression, " ")
+    return any(re.search(rf"\b{re.escape(mot)}\b", texte) for mot in MOTS_CLES_URGENCE)
+
+
+# Réponse niveau 4 : volontairement figée (pas d'improvisation du LLM face à un danger vital),
+# mais déclinée en tu/vous et variée entre le premier message et les suivants dans la même
+# session, pour ne pas répéter mot pour mot la même phrase si la personne continue d'écrire.
+MESSAGE_URGENCE_INITIAL_TU = (
+    "Ce que tu me dis m'inquiète beaucoup. Je ne peux pas t'accompagner seul(e) sur ça, il faut "
+    "qu'on te mette en lien avec quelqu'un maintenant. Voici le 3114, le numéro national de "
+    "prévention du suicide, gratuit et disponible 24h/24."
+)
+MESSAGE_URGENCE_INITIAL_VOUS = (
+    "Ce que vous me dites m'inquiète beaucoup. Je ne peux pas vous accompagner seul(e) sur ça, il "
+    "faut qu'on vous mette en lien avec quelqu'un maintenant. Voici le 3114, le numéro national de "
+    "prévention du suicide, gratuit et disponible 24h/24."
+)
+MESSAGES_URGENCE_SUIVANTS_TU = [
+    "Je reste inquiète pour toi. Le 3114 est toujours là, gratuitement et 24h/24, si tu veux parler à quelqu'un maintenant.",
+    "Ce que tu me dis reste très préoccupant. Le 3114 peut t'écouter à tout moment, gratuitement et 24h/24 : c'est fait pour ça.",
+]
+MESSAGES_URGENCE_SUIVANTS_VOUS = [
+    "Je reste inquiète pour vous. Le 3114 est toujours là, gratuitement et 24h/24, si vous voulez parler à quelqu'un maintenant.",
+    "Ce que vous me dites reste très préoccupant. Le 3114 peut vous écouter à tout moment, gratuitement et 24h/24 : c'est fait pour ça.",
+]
+MOTS_VOUVOIEMENT = re.compile(r"\bvous\b", re.IGNORECASE)
+
+
+def message_urgence(message_utilisateur: str, rang_alerte: int) -> str:
+    """rang_alerte : 0 pour la première alerte niveau 4 de la session, 1+ pour les suivantes."""
+    vouvoiement = bool(MOTS_VOUVOIEMENT.search(message_utilisateur))
+    if rang_alerte == 0:
+        return MESSAGE_URGENCE_INITIAL_VOUS if vouvoiement else MESSAGE_URGENCE_INITIAL_TU
+    variantes = MESSAGES_URGENCE_SUIVANTS_VOUS if vouvoiement else MESSAGES_URGENCE_SUIVANTS_TU
+    return variantes[(rang_alerte - 1) % len(variantes)]
+
 
 @app.post("/v1/auth/register")
 async def register(req: RegisterRequest):
@@ -269,7 +316,7 @@ async def chat_with_therapelio(chat: ChatMessage):
         chat.prenom = profil["prenom"]
         chat.poste = profil["poste"]
 
-    alerte_mot_cle = any(mot in chat.message.lower() for mot in MOTS_CLES_URGENCE)
+    alerte_mot_cle = contient_signal_urgence(chat.message)
     classification = classify_risk(chat.message, chat.history, state["niveau_max"])
 
     niveau = max(classification["niveau"], state["niveau_max"], 4 if alerte_mot_cle else 0)
@@ -278,9 +325,11 @@ async def chat_with_therapelio(chat: ChatMessage):
     # Niveau 4 : urgence vitale, on court-circuite la génération conversationnelle.
     if niveau == 4:
         db.log_crisis_event(session_id, 4, classification["categories_detectees"], "urgence_vitale_hotline_affichee")
+        reponse = message_urgence(chat.message, state["niveau4_count"])
+        state["niveau4_count"] += 1
         return {
             "status": "success",
-            "reply": "Ce que tu me dis m'inquiète beaucoup. Je ne peux pas t'accompagner seul(e) sur ça, il faut qu'on te mette en lien avec quelqu'un maintenant. Voici le 3114, le numéro national de prévention du suicide, gratuit et disponible 24h/24.",
+            "reply": reponse,
             "security": "urgence_vitale_detectee",
             "niveau_risque": 4,
         }
