@@ -182,6 +182,49 @@ export function UsersIcon({ className = "w-6 h-6" }) {
   );
 }
 
+export function HomeIcon({ className = "w-5 h-5" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.9"
+        d="M4 10.5L12 4l8 6.5V19a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4h-4v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-8.5z"
+      />
+    </svg>
+  );
+}
+
+export function ChevronDownIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+export function LogOutIcon({ className = "w-4 h-4" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.9"
+        d="M9 21H6a2 2 0 01-2-2V5a2 2 0 012-2h3M16 17l5-5-5-5M21 12H9"
+      />
+    </svg>
+  );
+}
+
+export function CalendarPlusIcon({ className = "w-5 h-5" }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <rect x="3.5" y="5" width="17" height="16" rx="2" strokeWidth="1.75" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3.5 9.5h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5" />
+    </svg>
+  );
+}
+
 /** Logomark de Thérapelio simplifié (silhouette rayonnante), réutilisé comme avatar de Thera. */
 export function TheraMark({ className = "w-4 h-4" }) {
   return (

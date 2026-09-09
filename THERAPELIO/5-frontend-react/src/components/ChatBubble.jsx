@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { TheraMark } from "./icons";
 
 const bubbleMotion = {
   initial: { opacity: 0, y: 8 },
@@ -12,9 +11,9 @@ function Avatar({ isError }) {
     <div
       className={`w-9 h-9 rounded-full ${
         isError ? "bg-thera-technologie" : "bg-thera-stabilite"
-      } text-white flex items-center justify-center shrink-0`}
+      } text-white flex items-center justify-center shrink-0 p-1.5`}
     >
-      <TheraMark className="w-4.5 h-4.5" />
+      <img src="/thera-mark.png" alt="" className="w-full h-full object-contain" />
     </div>
   );
 }

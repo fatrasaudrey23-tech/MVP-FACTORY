@@ -59,7 +59,10 @@ export default function Praticiens() {
 
   return (
     <div className="p-2">
-      <p className="text-thera-stabilite/70 mb-6 font-medium">Sélectionnez un praticien pour planifier une consultation confidentielle.</p>
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-thera-stabilite/70 font-medium">Sélectionnez un praticien pour planifier une consultation confidentielle.</p>
+        <span className="shrink-0 text-xs font-bold text-thera-stabilite/40 bg-thera-confiance px-2.5 py-1 rounded-full">1 praticien disponible</span>
+      </div>
 
       <div className="bg-white border border-thera-stabilite/10 rounded-2xl shadow-sm max-w-2xl overflow-hidden">
         <div className="p-6 border-b border-thera-stabilite/8">
