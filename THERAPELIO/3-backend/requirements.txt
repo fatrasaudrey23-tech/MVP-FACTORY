@@ -2,6 +2,6 @@ fastapi
 uvicorn
 requests
 python-dotenv
-google-generativeai
+anthropic>=1.0
 pydantic
 psycopg2-binary

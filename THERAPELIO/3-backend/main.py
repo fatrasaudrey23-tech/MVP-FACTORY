@@ -3,12 +3,12 @@ import os
 import re
 from contextlib import asynccontextmanager
 
+import anthropic
 import requests
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import google.generativeai as genai
 
 import db
 from prompts import (
@@ -21,15 +21,15 @@ from pydantic import BaseModel
 
 # 1. Chargement des variables d'environnement
 load_dotenv()
-if not os.getenv("GEMINI_API_KEY"):
+if not os.getenv("ANTHROPIC_API_KEY"):
     load_dotenv(dotenv_path="../.env")
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 CALCOM_API_KEY = os.getenv("CALCOM_API_KEY")
 CALCOM_BASE_URL = "https://api.cal.com/v2"
 
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else None
+CLAUDE_MODEL = "claude-sonnet-5"
 
 # 2. Initialisation de l'App FastAPI
 @asynccontextmanager
@@ -76,9 +76,7 @@ class BookingRequest(BaseModel):
     email: str
 
 
-# 3. LE MOTEUR AUTO-RÉPARATEUR ORIGINEL
-ACTIVE_WORKING_MODEL = None
-MODEL_BLACKLIST = set()
+# 3. MOTEUR IA (Claude)
 
 # État de risque par conversation (en mémoire : suffisant pour le MVP,
 # se réinitialise si le serveur redémarre ou tourne sur plusieurs instances).
@@ -89,97 +87,54 @@ def get_session_state(session_id: str) -> dict:
         SESSION_STATE[session_id] = {"niveau_max": 1, "parcours_actif": None, "niveau4_count": 0}
     return SESSION_STATE[session_id]
 
-MODELE_EXCLUS_MOTS_CLES = ("tts", "image", "embedding", "vision", "aqa")
+# Timeout appliqué à chaque appel Claude : sans ça, une requête en attente de rate-limit
+# ou de retentative interne du SDK peut traîner plusieurs minutes avant de remonter
+# l'erreur, ce qui bloque l'utilisateur en silence.
+CLAUDE_TIMEOUT_CHAT = 25.0
+CLAUDE_TIMEOUT_CLASSIFICATION = 15.0
 
-# Timeout appliqué à chaque appel Gemini : sans ça, un modèle en quota dépassé ou
-# surchargé peut faire "traîner" la requête pendant plusieurs minutes (le SDK retente
-# en interne) avant de remonter l'erreur, ce qui bloque l'utilisateur en silence.
-GEMINI_TIMEOUT_CHAT = {"timeout": 25}
-GEMINI_TIMEOUT_CLASSIFICATION = {"timeout": 15}
-
-def get_candidate_models():
-    """Récupère et trie les modèles disponibles en excluant la blacklist."""
-    try:
-        models = [
-            m.name
-            for m in genai.list_models()
-            if "generateContent" in m.supported_generation_methods
-            and m.name not in MODEL_BLACKLIST
-            and not any(mot in m.name.lower() for mot in MODELE_EXCLUS_MOTS_CLES)
-        ]
-        flash_models = [m for m in models if "flash" in m.lower()]
-        other_models = [m for m in models if "flash" not in m.lower()]
-        return flash_models + other_models
-    except Exception:
-        return [
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
-            "gemini-pro",
-            "gemini-1.0-pro",
-        ]
 
 def _format_history(history: list) -> list:
-    """Correction stricte du format d'historique pour éviter l'erreur de dictionnaire."""
-    formatted_history = []
+    """Normalise l'historique (y compris les exemples few-shot) au format Claude."""
+    formatted = []
     for h in history:
         role = h.get("role", "user")
-        if role == "assistant":
-            role = "model"
-        parts = h.get("parts", h.get("content", ""))
-        if isinstance(parts, str):
-            parts = [parts]
-        formatted_history.append({"role": role, "parts": parts})
-    return formatted_history
+        if role == "model":
+            role = "assistant"
+        elif role not in ("user", "assistant"):
+            role = "user"
+        content = h.get("content", h.get("parts", ""))
+        if isinstance(content, list):
+            content = " ".join(str(c) for c in content)
+        formatted.append({"role": role, "content": content})
+    return formatted
 
 
-def _run_with_auto_healing(call_fn):
-    """Essaie chaque modèle candidat jusqu'à ce que call_fn(model_name) réussisse."""
-    global ACTIVE_WORKING_MODEL, MODEL_BLACKLIST
+def generate_reply(message: str, history: list, system_instruction: str) -> str:
+    """Passe 2 : génération de la réponse conversationnelle de Thera."""
+    formatted = _format_history(history)
+    # L'API Claude exige que le premier message soit de rôle "user" ; si l'historique
+    # commence par un tour "assistant" (ex. l'exemple few-shot d'amorçage), on l'amorce
+    # avec un tour utilisateur synthétique pour rester valide.
+    if formatted and formatted[0]["role"] != "user":
+        formatted = [{"role": "user", "content": "Bonjour"}] + formatted
+    formatted.append({"role": "user", "content": message})
 
-    candidates = [ACTIVE_WORKING_MODEL] if ACTIVE_WORKING_MODEL else get_candidate_models()
-
-    for model_name in candidates:
-        try:
-            result = call_fn(model_name)
-
-            # Verrouillage du premier modèle qui répond sans erreur 404
-            if not ACTIVE_WORKING_MODEL:
-                ACTIVE_WORKING_MODEL = model_name
-                print(f"✅ SUCCÈS ! Modèle verrouillé : {ACTIVE_WORKING_MODEL}")
-
-            return result, model_name
-
-        except Exception as e:
-            error_str = str(e)
-            print(f"⚠️ Échec sur {model_name}...")
-
-            # Mise en liste noire des modèles inaccessibles ou restreints
-            if "404" in error_str or "not found" in error_str.lower() or "no longer available" in error_str.lower():
-                MODEL_BLACKLIST.add(model_name)
-                if ACTIVE_WORKING_MODEL == model_name:
-                    ACTIVE_WORKING_MODEL = None
-            continue
-
-    raise Exception("Aucun modèle d'IA n'est actuellement accessible avec cette clé API.")
+    response = client.with_options(timeout=CLAUDE_TIMEOUT_CHAT).messages.create(
+        model=CLAUDE_MODEL,
+        max_tokens=1024,
+        system=system_instruction,
+        messages=formatted,
+    )
+    return next(block.text for block in response.content if block.type == "text")
 
 
-def generate_with_auto_healing(message: str, history: list, system_instruction: str):
-    formatted_history = _format_history(history)
-
-    def call(model_name):
-        model = genai.GenerativeModel(model_name=model_name, system_instruction=system_instruction)
-        chat_session = model.start_chat(history=formatted_history)
-        return chat_session.send_message(message, request_options=GEMINI_TIMEOUT_CHAT).text
-
-    return _run_with_auto_healing(call)
-
-
-def generate_oneshot_with_auto_healing(prompt: str, system_instruction: str):
-    def call(model_name):
-        model = genai.GenerativeModel(model_name=model_name, system_instruction=system_instruction)
-        return model.generate_content(prompt, request_options=GEMINI_TIMEOUT_CLASSIFICATION).text
-
-    return _run_with_auto_healing(call)
+class RiskClassification(BaseModel):
+    niveau: int
+    categories_detectees: list[str]
+    parcours_probable: str
+    confiance: float
+    justification_courte: str
 
 
 def classify_risk(message: str, history: list, niveau_max_session: int) -> dict:
@@ -197,30 +152,33 @@ Dernier message de l'utilisateur : {message}
 
 Niveau de risque maximum déjà atteint dans cette conversation : {niveau_max_session}
 
-Réponds UNIQUEMENT avec un objet JSON strict, au format exact :
-{{"niveau": <entier 1 à 4>, "categories_detectees": [<liste de chaînes>], "parcours_probable": "<une lettre parmi A,B,C,D,E,F,G,H>", "confiance": <0 à 1>, "justification_courte": "<une phrase>"}}
-
 Barème :
 1 = échange standard, pas de signal de détresse particulier
 2 = signal de mal-être modéré
 3 = détresse aiguë nécessitant une orientation rapide vers un professionnel
 4 = urgence vitale (idées suicidaires explicites, danger immédiat pour soi ou autrui)
 
+Le parcours_probable doit être une lettre parmi A,B,C,D,E,F,G,H.
 Ne descends jamais en dessous du niveau {niveau_max_session} sans justification majeure explicite dans le dernier message.
 """
     try:
-        raw_text, _ = generate_oneshot_with_auto_healing(prompt, RISK_CLASSIFICATION_INSTRUCTION)
-        match = re.search(r"\{.*\}", raw_text, re.DOTALL)
-        data = json.loads(match.group(0) if match else raw_text)
+        response = client.with_options(timeout=CLAUDE_TIMEOUT_CLASSIFICATION).messages.parse(
+            model=CLAUDE_MODEL,
+            max_tokens=512,
+            system=RISK_CLASSIFICATION_INSTRUCTION,
+            messages=[{"role": "user", "content": prompt}],
+            output_format=RiskClassification,
+        )
+        data = response.parsed_output
 
-        niveau = max(1, min(4, int(data.get("niveau", 1))))
-        parcours = str(data.get("parcours_probable", "A")).strip().upper()
+        niveau = max(1, min(4, data.niveau))
+        parcours = data.parcours_probable.strip().upper()
         if parcours not in MODULES_PARCOURS:
             parcours = "A"
 
         return {
             "niveau": niveau,
-            "categories_detectees": data.get("categories_detectees", []),
+            "categories_detectees": data.categories_detectees,
             "parcours_probable": parcours,
         }
     except Exception as e:
@@ -301,7 +259,7 @@ async def recover(req: RecoverRequest):
 
 @app.post("/v1/chat")
 async def chat_with_therapelio(chat: ChatMessage):
-    if not GEMINI_API_KEY:
+    if not ANTHROPIC_API_KEY:
         return {"status": "error", "reply": "L'IA est déconnectée (clé API manquante)."}
     if not chat.message.strip():
         return {"status": "error", "reply": "Le message ne peut pas être vide."}
@@ -359,22 +317,20 @@ async def chat_with_therapelio(chat: ChatMessage):
 
     final_system_instruction = f"{THERAPELIO_SYSTEM_INSTRUCTION}\n\n[INSTRUCTIONS SPÉCIFIQUES]\n{texte_module}{contexte_utilisateur}"
 
-    full_history = FEW_SHOT_EXAMPLES.copy()
-    for msg in chat.history:
-        full_history.append({"role": msg.get("role"), "parts": [msg.get("content")]})
+    full_history = FEW_SHOT_EXAMPLES + chat.history
 
     try:
-        reponse_texte, model_used = generate_with_auto_healing(chat.message, full_history, final_system_instruction)
+        reponse_texte = generate_reply(chat.message, full_history, final_system_instruction)
         return {
             "status": "success",
             "reply": reponse_texte,
-            "security": "auto_healing_verified",
-            "model_used": model_used,
+            "security": "verified",
+            "model_used": CLAUDE_MODEL,
             "niveau_risque": niveau,
             "parcours_actif": parcours_actif,
         }
     except Exception as e:
-        return {"status": "error", "reply": f"Erreur API Gemini : {str(e)}"}
+        return {"status": "error", "reply": f"Erreur API Claude : {str(e)}"}
 
 
 # Routes Cal.com
