@@ -16,6 +16,7 @@ from prompts import (
     THERAPELIO_SYSTEM_INSTRUCTION,
     MODULES_PARCOURS,
     RISK_CLASSIFICATION_INSTRUCTION,
+    INSTRUCTION_VERIFICATION_MOT_AMBIGU,
 )
 from pydantic import BaseModel
 
@@ -189,28 +190,44 @@ Ne descends jamais en dessous du niveau {niveau_max_session} sans justification 
 # 4. Routes de l'API
 
 # Filet de sécurité rapide par mots-clés : défense en profondeur, ne dépend pas du LLM.
-MOTS_CLES_URGENCE = ["suicide", "en finir", "mourir", "plus envie de vivre", "tout stopper", "me faire du mal", "me tuer"]
+# Scindé en deux : les mots quasi jamais employés au sens figuré déclenchent l'arrêt
+# immédiat (niveau 4) ; les mots courants dans des expressions du quotidien ("cette
+# réunion va me tuer", "je veux en finir avec ce dossier") ne font que déclencher une
+# vérification bienveillante de Thera, sans jamais figer le niveau de risque de la
+# session — si la personne rassure au tour suivant, rien ne reste bloqué.
+MOTS_CLES_URGENCE_CERTAINS = ["suicide", "plus envie de vivre"]
+MOTS_CLES_URGENCE_AMBIGUS = ["en finir", "mourir", "tout stopper", "me faire du mal", "me tuer"]
 
-# Tournures figurées où ces mots-clés apparaissent sans signal de détresse réel : on les
-# retire du texte avant la recherche, pour éviter qu'un "mourir de rire" déclenche à tort
-# le niveau 4 (et bloque la session en mode crise pour le reste de la conversation).
+# Tournures figurées sans aucune ambiguïté réaliste (pas même de quoi justifier une
+# simple vérification) : on les retire avant la recherche, pour qu'un "mourir de rire"
+# ne déclenche rien du tout. Note : "cette réunion va me tuer" n'est PAS filtré ici — ce
+# cas-là est justement celui que MOTS_CLES_URGENCE_AMBIGUS doit intercepter, pour que
+# Thera vérifie avec douceur au lieu de l'ignorer ou de la bloquer.
 EXPRESSIONS_FIGUREES_A_IGNORER = [
     "mourir de rire", "mort de rire", "mdr", "mourir de faim", "mourir de honte",
     "mourir d'ennui", "mourir de chaud", "à en mourir de rire",
 ]
 
-# "X va me tuer" / "X vont me tuer" (3e personne : "cette réunion va me tuer", "ces
-# deadlines vont me tuer") est presque toujours une hyperbole sur une situation, jamais
-# une intention réelle — qui se dit "je VAIS me tuer" (1re personne). Comme "va"/"vont" et
-# "vais" sont des conjugaisons distinctes, ce filtre ne peut pas neutraliser une vraie
-# alerte au passage.
-EXPRESSIONS_TUER_FIGURE = ["va me tuer", "vont me tuer"]
+
+def _nettoyer_figuratifs(message: str) -> str:
+    texte = message.lower()
+    for expression in EXPRESSIONS_FIGUREES_A_IGNORER:
+        texte = texte.replace(expression, " ")
+    return texte
+
+
+def _contient_un_mot(texte: str, mots: list) -> bool:
+    return any(re.search(rf"\b{re.escape(mot)}\b", texte) for mot in mots)
+
 
 def contient_signal_urgence(message: str) -> bool:
-    texte = message.lower()
-    for expression in EXPRESSIONS_FIGUREES_A_IGNORER + EXPRESSIONS_TUER_FIGURE:
-        texte = texte.replace(expression, " ")
-    return any(re.search(rf"\b{re.escape(mot)}\b", texte) for mot in MOTS_CLES_URGENCE)
+    """Mots sans ambiguïté réaliste : déclenchent l'arrêt immédiat (niveau 4)."""
+    return _contient_un_mot(_nettoyer_figuratifs(message), MOTS_CLES_URGENCE_CERTAINS)
+
+
+def contient_mot_ambigu(message: str) -> bool:
+    """Mots forts mais courants au sens figuré : déclenchent une simple vérification."""
+    return _contient_un_mot(_nettoyer_figuratifs(message), MOTS_CLES_URGENCE_AMBIGUS)
 
 
 # Réponse niveau 4 : volontairement figée (pas d'improvisation du LLM face à un danger vital),
@@ -323,6 +340,13 @@ async def chat_with_therapelio(chat: ChatMessage):
             contexte_utilisateur += f"\nPoste : {poste}."
 
     final_system_instruction = f"{THERAPELIO_SYSTEM_INSTRUCTION}\n\n[INSTRUCTIONS SPÉCIFIQUES]\n{texte_module}{contexte_utilisateur}"
+
+    # Mot ambigu ("tuer", "mourir"...) mais le niveau reste bas malgré tout le contexte :
+    # on ne force rien sur l'état de la session, on demande juste à Thera de vérifier
+    # avec douceur pour CET échange. Si la personne rassure au tour suivant, rien ne
+    # reste bloqué puisque niveau_max n'a jamais été modifié par ce filet.
+    if niveau < 3 and contient_mot_ambigu(chat.message):
+        final_system_instruction += f"\n\n{INSTRUCTION_VERIFICATION_MOT_AMBIGU}"
 
     full_history = FEW_SHOT_EXAMPLES + chat.history
 

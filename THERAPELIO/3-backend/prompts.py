@@ -90,6 +90,13 @@ INSTRUCTION SPÉCIFIQUE : Distingue le questionnement existentiel du signal de s
 }
 
 # ---------------------------------------------------------
+# 2bis. VÉRIFICATION SUR MOT AMBIGU (ponctuelle, n'affecte jamais l'état de la session)
+# ---------------------------------------------------------
+INSTRUCTION_VERIFICATION_MOT_AMBIGU = """
+VÉRIFICATION IMPORTANTE : la personne vient d'employer un mot fort ("tuer", "mourir", "en finir"...) qui peut être une expression courante ("cette réunion va me tuer") ou un vrai signal de détresse. Avant de poursuivre normalement, vérifie avec douceur et sans dramatiser, par exemple : "J'ai le sentiment que ça pourrait être grave, est-ce que je me trompe ?" Si la personne confirme que c'est une façon de parler, poursuis l'échange normalement sans t'attarder dessus. Si elle confirme une vraie détresse, prends-la au sérieux et oriente comme d'habitude.
+"""
+
+# ---------------------------------------------------------
 # 3. INSTRUCTION DE CLASSIFICATION DU RISQUE (Passe 1)
 # ---------------------------------------------------------
 RISK_CLASSIFICATION_INSTRUCTION = """
