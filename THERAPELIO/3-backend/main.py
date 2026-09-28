@@ -199,9 +199,16 @@ EXPRESSIONS_FIGUREES_A_IGNORER = [
     "mourir d'ennui", "mourir de chaud", "à en mourir de rire",
 ]
 
+# "X va me tuer" / "X vont me tuer" (3e personne : "cette réunion va me tuer", "ces
+# deadlines vont me tuer") est presque toujours une hyperbole sur une situation, jamais
+# une intention réelle — qui se dit "je VAIS me tuer" (1re personne). Comme "va"/"vont" et
+# "vais" sont des conjugaisons distinctes, ce filtre ne peut pas neutraliser une vraie
+# alerte au passage.
+EXPRESSIONS_TUER_FIGURE = ["va me tuer", "vont me tuer"]
+
 def contient_signal_urgence(message: str) -> bool:
     texte = message.lower()
-    for expression in EXPRESSIONS_FIGUREES_A_IGNORER:
+    for expression in EXPRESSIONS_FIGUREES_A_IGNORER + EXPRESSIONS_TUER_FIGURE:
         texte = texte.replace(expression, " ")
     return any(re.search(rf"\b{re.escape(mot)}\b", texte) for mot in MOTS_CLES_URGENCE)
 
