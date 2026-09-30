@@ -8,6 +8,7 @@ import requests
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 
 import db
@@ -267,7 +268,7 @@ def message_urgence(message_utilisateur: str, rang_alerte: int) -> str:
 async def register(req: RegisterRequest):
     if not req.prenom.strip():
         raise HTTPException(status_code=400, detail="Le prénom est requis.")
-    resultat = db.register_user(req.registration_code, req.prenom, req.poste)
+    resultat = await run_in_threadpool(db.register_user, req.registration_code, req.prenom, req.poste)
     if not resultat:
         raise HTTPException(status_code=404, detail="Code entreprise invalide ou base de données indisponible.")
     return resultat
@@ -275,7 +276,7 @@ async def register(req: RegisterRequest):
 
 @app.post("/v1/auth/recover")
 async def recover(req: RecoverRequest):
-    resultat = db.recover_user(req.recovery_code)
+    resultat = await run_in_threadpool(db.recover_user, req.recovery_code)
     if not resultat:
         raise HTTPException(status_code=404, detail="Code de récupération introuvable.")
     return resultat
@@ -293,20 +294,22 @@ async def chat_with_therapelio(chat: ChatMessage):
 
     # Le profil enregistré en base (via /v1/auth) prime sur les champs libres envoyés
     # par le client, qui ne servent plus que de repli si l'utilisateur n'a pas de compte.
-    profil = db.get_user(chat.user_id) if chat.user_id else None
+    profil = await run_in_threadpool(db.get_user, chat.user_id) if chat.user_id else None
     if profil:
         chat.prenom = profil["prenom"]
         chat.poste = profil["poste"]
 
     alerte_mot_cle = contient_signal_urgence(chat.message)
-    classification = classify_risk(chat.message, chat.history, state["niveau_max"])
+    classification = await run_in_threadpool(classify_risk, chat.message, chat.history, state["niveau_max"])
 
     niveau = max(classification["niveau"], state["niveau_max"], 4 if alerte_mot_cle else 0)
     state["niveau_max"] = niveau
 
     # Niveau 4 : urgence vitale, on court-circuite la génération conversationnelle.
     if niveau == 4:
-        db.log_crisis_event(session_id, 4, classification["categories_detectees"], "urgence_vitale_hotline_affichee")
+        await run_in_threadpool(
+            db.log_crisis_event, session_id, 4, classification["categories_detectees"], "urgence_vitale_hotline_affichee"
+        )
         reponse = message_urgence(chat.message, state["niveau4_count"])
         state["niveau4_count"] += 1
         return {
@@ -319,7 +322,9 @@ async def chat_with_therapelio(chat: ChatMessage):
     # Niveau 3 : détresse aiguë, on force le parcours F (orientation prioritaire) et on journalise.
     if niveau == 3:
         parcours_actif = "F"
-        db.log_crisis_event(session_id, 3, classification["categories_detectees"], "orientation_prioritaire_proposee")
+        await run_in_threadpool(
+            db.log_crisis_event, session_id, 3, classification["categories_detectees"], "orientation_prioritaire_proposee"
+        )
     else:
         # Le parcours se fixe au premier échange puis reste stable sur la session
         # (le motif initial ne doit pas changer de catégorie à chaque message).
@@ -351,7 +356,7 @@ async def chat_with_therapelio(chat: ChatMessage):
     full_history = FEW_SHOT_EXAMPLES + chat.history
 
     try:
-        reponse_texte = generate_reply(chat.message, full_history, final_system_instruction)
+        reponse_texte = await run_in_threadpool(generate_reply, chat.message, full_history, final_system_instruction)
         return {
             "status": "success",
             "reply": reponse_texte,
@@ -377,7 +382,9 @@ async def get_slots(event_type_id: int):
         "startTime": now.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
         "endTime": end_time.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
     }
-    response = requests.get(f"{CALCOM_BASE_URL}/slots/available", headers=headers, params=params)
+    response = await run_in_threadpool(
+        requests.get, f"{CALCOM_BASE_URL}/slots/available", headers=headers, params=params
+    )
     if not response.ok:
         raise HTTPException(status_code=response.status_code, detail=response.text)
     return response.json()
@@ -404,8 +411,10 @@ async def create_booking(booking: BookingRequest):
         }
     }
     
-    response = requests.post("https://api.cal.com/v2/bookings", headers=headers, json=payload)
-    
+    response = await run_in_threadpool(
+        requests.post, "https://api.cal.com/v2/bookings", headers=headers, json=payload
+    )
+
     if not response.ok:
         print("Erreur Cal.com V2 :", response.text)
         raise HTTPException(status_code=response.status_code, detail=response.text)
